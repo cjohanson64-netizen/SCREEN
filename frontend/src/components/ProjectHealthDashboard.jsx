@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import ForceGraph2D from "react-force-graph-2d";
+import Logo from "../assets/TAT-Logo.svg";
 import "../styles/features/project-health-dashboard.css";
 
 const API_URL = "http://localhost:5050/api/project/upload";
@@ -103,9 +104,16 @@ export default function ProjectHealthDashboard({
   return (
     <section className="project-health-dashboard">
       <header className="project-health-header">
-        <div>
-          <h1>Project Health Graph</h1>
-          <p>Upload a project zip to see file risk, imports, and dependents.</p>
+        <div className="logo">
+          <img className="logo-img" src={Logo} alt="TAT Logo" />
+          <div>
+            <h1 className="logo-title">SCREEN</h1>
+            <p className="eyebrow">Semantic Code Reviewer</p>
+            <p className="eyebrow">Engineer Enhancer</p>
+            <p>
+              Upload a project zip to see file risk, imports, and dependents.
+            </p>
+          </div>
         </div>
 
         <label className="project-upload-button">
