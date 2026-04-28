@@ -1,0 +1,22 @@
+file_analysis = <{
+  metrics: {
+    lineCount: 320,
+    tokenEstimate: 3100
+  },
+  meta: {
+    fileName: "measure_file.py"
+  }
+}>
+
+long_file = <{}>
+
+@seed:
+  nodes: [
+    file_analysis,
+    long_file
+  ]
+  root: file_analysis
+
+graph := @seed
+  -> @graft.meta(long_file, "label", "Long file")
+  -> @graft.branch(file_analysis, "hasSignal", long_file)

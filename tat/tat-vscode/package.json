@@ -1,0 +1,73 @@
+{
+  "name": "tat-vscode",
+  "displayName": "TAT Language Support",
+  "description": "Syntax highlighting and linting for TryAngleTree .tat files",
+  "version": "0.0.4",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:tat"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "tat",
+        "aliases": [
+          "TAT",
+          "TryAngleTree"
+        ],
+        "extensions": [
+          ".tat"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "tat",
+        "scopeName": "source.tat",
+        "path": "./syntaxes/tat.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "tat",
+        "path": "./snippets/tat.code-snippets"
+      }
+    ],
+    "configurationDefaults": {
+      "[tat]": {
+        "editor.bracketPairColorization.enabled": false
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cjohanson64-netizen/tat-code-reviewer.git"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "@types/vscode": "^1.80.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.9.3"
+  },
+  "main": "./dist/extension.js",
+  "files": [
+    "dist/**",
+    "syntaxes/**",
+    "snippets/**",
+    "language-configuration.json",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "compile": "esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=dist/extension.js --external:vscode",
+    "vscode:prepublish": "npm run compile"
+  }
+}

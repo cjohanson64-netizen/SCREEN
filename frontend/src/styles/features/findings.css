@@ -1,0 +1,53 @@
+.finding-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.finding-card {
+  border-radius: 18px;
+  padding: 18px;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-border-soft);
+}
+
+.finding-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.finding-rule {
+  color: var(--color-text-subtle);
+  opacity: 0.7;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  font-family: monospace;
+}
+
+.finding-card h3 {
+  margin: 12px 0;
+}
+
+.finding-details {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.finding-details div {
+  display: grid;
+  gap: 4px;
+}
+
+.finding-details dt {
+  color: var(--color-accent-softest);
+  font-weight: 900;
+}
+
+.finding-details dd {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}

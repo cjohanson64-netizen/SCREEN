@@ -1,0 +1,16 @@
+.ai-prompt {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-border-soft);
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+.prompt-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}

@@ -1,0 +1,75 @@
+{
+  "Seed block": {
+    "prefix": "seed",
+    "body": [
+      "@seed:",
+      "  nodes: [",
+      "    ${1:root_node}",
+      "  ]",
+      "  root: ${1:root_node}"
+    ],
+    "description": "Create a TAT @seed block"
+  },
+
+  "Node declaration": {
+    "prefix": "node",
+    "body": ["${1:node_name} = <{}>"],
+    "description": "Declare a TAT node"
+  },
+
+  "Graft branch": {
+    "prefix": "graft.branch",
+    "body": [
+      "-> @graft.branch(${1:sourceNode}, \"${2:edgeName}\", ${3:targetNode})"
+    ],
+    "description": "Create a structural edge"
+  },
+
+  "Graft meta": {
+    "prefix": "graft.meta",
+    "body": [
+      "-> @graft.meta(${1:nodeName}, \"${2:key}\", \"${3:value}\")"
+    ],
+    "description": "Attach metadata to a node"
+  },
+
+  "Graft state": {
+    "prefix": "graft.state",
+    "body": [
+      "-> @graft.state(${1:nodeName}, \"${2:key}\", ${3:value})"
+    ],
+    "description": "Attach or update state"
+  },
+
+  "If block": {
+    "prefix": "if",
+    "body": [
+      "-> @if {",
+      "  when: ${1:condition}",
+      "  then:",
+      "    -> ${2:operation}",
+      "}"
+    ],
+    "description": "Create a TAT @if block"
+  },
+
+  "Derive state": {
+    "prefix": "derive.state",
+    "body": [
+      "@derive.state {",
+      "  node: ${1:nodeName}",
+      "  key: \"${2:key}\"",
+      "}"
+    ],
+    "description": "Derive state from a node"
+  },
+
+  "Graph pipeline": {
+    "prefix": "graph",
+    "body": [
+      "graph := @seed",
+      "  -> ${1:operation}"
+    ],
+    "description": "Create a graph pipeline"
+  }
+}

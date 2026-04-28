@@ -1,0 +1,150 @@
+file_analysis = <{}>
+
+long_file = <{}>
+high_token_count = <{}>
+many_functions = <{}>
+deep_nesting = <{}>
+repeated_patterns = <{}>
+high_complexity = <{}>
+needs_refactor = <{}>
+
+many_decisions = <{}>
+loop_heavy = <{}>
+boolean_dense = <{}>
+error_handling_heavy = <{}>
+
+size_cluster = <{}>
+complexity_cluster = <{}>
+structure_cluster = <{}>
+repetition_cluster = <{}>
+risk_cluster = <{}>
+
+finding_file_too_large = <{}>
+finding_complexity_high = <{}>
+finding_duplication_high = <{}>
+finding_refactor_first = <{}>
+
+@seed:
+  nodes: [
+    file_analysis,
+    long_file,
+    high_token_count,
+    many_functions,
+    deep_nesting,
+    repeated_patterns,
+    high_complexity,
+    needs_refactor,
+    many_decisions,
+    loop_heavy,
+    boolean_dense,
+    error_handling_heavy,
+    size_cluster,
+    complexity_cluster,
+    structure_cluster,
+    repetition_cluster,
+    risk_cluster,
+    finding_file_too_large,
+    finding_complexity_high,
+    finding_duplication_high,
+    finding_refactor_first
+  ]
+  root: file_analysis
+
+graph := @seed
+
+  -> @graft.meta(long_file, "label", "Long file")
+  -> @graft.meta(high_token_count, "label", "High token count")
+  -> @graft.meta(many_functions, "label", "Many functions")
+  -> @graft.meta(deep_nesting, "label", "Deep nesting")
+  -> @graft.meta(repeated_patterns, "label", "Repeated patterns")
+  -> @graft.meta(high_complexity, "label", "High complexity")
+  -> @graft.meta(needs_refactor, "label", "Needs refactor")
+
+  -> @graft.meta(many_decisions, "label", "Many decisions")
+  -> @graft.meta(loop_heavy, "label", "Loop heavy")
+  -> @graft.meta(boolean_dense, "label", "Boolean dense")
+  -> @graft.meta(error_handling_heavy, "label", "Error handling heavy")
+
+  -> @graft.meta(size_cluster, "label", "Size")
+  -> @graft.meta(complexity_cluster, "label", "Complexity")
+  -> @graft.meta(structure_cluster, "label", "Structure")
+  -> @graft.meta(repetition_cluster, "label", "Repetition")
+  -> @graft.meta(risk_cluster, "label", "Risk")
+
+  // PYTHON_STATE_INJECTION_GOES_HERE
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "lineCount" } > 300
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", long_file)
+      -> @graft.branch(long_file, "belongsToCluster", size_cluster)
+      -> @graft.branch(file_analysis, "hasRisk", needs_refactor)
+      -> @graft.branch(needs_refactor, "belongsToCluster", risk_cluster)
+      -> @graft.branch(file_analysis, "hasFinding", finding_file_too_large)
+      -> @graft.branch(file_analysis, "hasFinding", finding_refactor_first)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "tokenEstimate" } > 3000
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", high_token_count)
+      -> @graft.branch(high_token_count, "belongsToCluster", size_cluster)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "functionCount" } > 12
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", many_functions)
+      -> @graft.branch(many_functions, "belongsToCluster", structure_cluster)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "maxNestingDepth" } > 4
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", deep_nesting)
+      -> @graft.branch(deep_nesting, "belongsToCluster", complexity_cluster)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "complexityScore" } > 50
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", high_complexity)
+      -> @graft.branch(high_complexity, "belongsToCluster", complexity_cluster)
+      -> @graft.branch(file_analysis, "hasFinding", finding_complexity_high)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "decisionKeywords" } > 15
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", many_decisions)
+      -> @graft.branch(many_decisions, "belongsToCluster", complexity_cluster)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "loopCount" } > 8
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", loop_heavy)
+      -> @graft.branch(loop_heavy, "belongsToCluster", complexity_cluster)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "booleanOperators" } > 10
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", boolean_dense)
+      -> @graft.branch(boolean_dense, "belongsToCluster", complexity_cluster)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "tryCatchBlocks" } > 4
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", error_handling_heavy)
+      -> @graft.branch(error_handling_heavy, "belongsToCluster", complexity_cluster)
+  }
+
+  -> @if {
+    when: @derive.state { node: file_analysis key: "repetitionScore" } > 25
+    then:
+      -> @graft.branch(file_analysis, "hasSignal", repeated_patterns)
+      -> @graft.branch(repeated_patterns, "belongsToCluster", repetition_cluster)
+      -> @graft.branch(file_analysis, "hasFinding", finding_duplication_high)
+  }

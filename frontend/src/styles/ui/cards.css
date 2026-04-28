@@ -1,0 +1,44 @@
+.metric-card {
+  flex: 1 1 0;
+  min-width: 108px;
+  border-radius: 18px;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-border-soft);
+  padding: 14px;
+}
+
+.metric-card span {
+  color: var(--color-text-subtle);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.metric-card strong {
+  font-size: 1.8rem;
+}
+
+.cluster-card {
+  border-radius: 18px;
+  padding: 16px;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-border-soft);
+}
+
+.cluster-card h3 {
+  margin-top: 0;
+}
+
+.cluster-signal-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cluster-signal {
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: var(--color-banner);
+  color: var(--color-accent-softest);
+  font-size: 0.85rem;
+  font-weight: 800;
+}

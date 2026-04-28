@@ -1,0 +1,46 @@
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 20px;
+  font-weight: 800;
+  color: white;
+  background: var(--color-accent);
+  cursor: pointer;
+}
+
+button:active {
+  background-color: var(--color-accent-hover);
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.small-button {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.highlight-lines-button {
+  align-self: flex-end;
+  margin-top: 12px;
+  color: var(--color-text);
+  background: var(--color-control);
+  border: 1px solid var(--color-border-soft);
+}
+
+.highlight-lines-button.selected {
+  color: white;
+  background: var(--color-accent);
+  border-color: transparent;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

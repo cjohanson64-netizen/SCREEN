@@ -1,0 +1,59 @@
+root = <{
+  name: "Root",
+  type: "task"
+}>
+
+child = <{
+  name: "Child",
+  type: "task"
+}>
+
+grandchild = <{
+  name: "Grandchild",
+  type: "task"
+}>
+
+@seed:
+  nodes: [root, child, grandchild]
+  edges: [
+    [root: "contains": child],
+    [child: "contains": grandchild]
+  ]
+  root: root
+
+graph := @seed
+  -> @graft.state(root, "status", "active")
+  -> @graft.state(child, "status", "ready")
+  -> @if {
+    when: @query {
+      subject: root
+      relation: "contains"
+      object: child
+    }
+    then:
+      -> @graft.branch(root, "queryPassed", child)
+    else:
+      -> @graft.branch(root, "queryFailed", child)
+  }
+  -> @if {
+    when: @query {
+      node: child
+      state: "status"
+      equals: "ready"
+    }
+    then:
+      -> @graft.branch(root, "stateQueryPassed", child)
+    else:
+      -> @graft.branch(root, "stateQueryFailed", child)
+  }
+  -> @if {
+    when: @derive.edgeCount {
+      node: root
+      relation: "contains"
+      direction: "outgoing"
+    } == 1
+    then:
+      -> @graft.branch(root, "deriveEdgeCountPassed", grandchild)
+    else:
+      -> @graft.branch(root, "deriveEdgeCountFailed", grandchild)
+  }

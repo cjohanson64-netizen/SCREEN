@@ -1,0 +1,156 @@
+prompt_chain = <{}>
+
+discover_stage = <{}>
+plan_stage = <{}>
+transform_stage = <{}>
+verify_stage = <{}>
+document_stage = <{}>
+
+discover_prompt = <{}>
+plan_prompt = <{}>
+pipeline_refactor_prompt = <{}>
+module_extraction_prompt = <{}>
+complexity_reduction_prompt = <{}>
+verification_prompt = <{}>
+documentation_prompt = <{}>
+
+@seed:
+  nodes: [
+    prompt_chain,
+    discover_stage,
+    plan_stage,
+    transform_stage,
+    verify_stage,
+    document_stage,
+    discover_prompt,
+    plan_prompt,
+    pipeline_refactor_prompt,
+    module_extraction_prompt,
+    complexity_reduction_prompt,
+    verification_prompt,
+    documentation_prompt
+  ]
+  root: prompt_chain
+
+graph := @seed
+
+  // PYTHON_PROMPT_CHAIN_STATE_GOES_HERE
+
+  // -------------------------------------
+  // Stage metadata
+  // -------------------------------------
+
+  -> @graft.meta(discover_stage, "stage", "DISCOVER")
+  -> @graft.meta(discover_stage, "title", "Discover Hidden Structure")
+  -> @graft.meta(discover_stage, "score", 95)
+  -> @graft.meta(discover_stage, "riskLevel", "medium")
+  -> @graft.meta(discover_stage, "reason", "Start by identifying responsibilities, hidden flows, and preserved behavior.")
+
+  -> @graft.meta(plan_stage, "stage", "PLAN")
+  -> @graft.meta(plan_stage, "title", "Plan Safe Refactor")
+  -> @graft.meta(plan_stage, "score", 90)
+  -> @graft.meta(plan_stage, "riskLevel", "medium")
+  -> @graft.meta(plan_stage, "reason", "Define a behavior-preserving plan before making code changes.")
+
+  -> @graft.meta(transform_stage, "stage", "TRANSFORM")
+  -> @graft.meta(transform_stage, "title", "Transform Architecture")
+  -> @graft.meta(transform_stage, "score", 95)
+  -> @graft.meta(transform_stage, "riskLevel", "high")
+  -> @graft.meta(transform_stage, "reason", "Perform the architectural transformation while preserving behavior.")
+
+  -> @graft.meta(verify_stage, "stage", "VERIFY")
+  -> @graft.meta(verify_stage, "title", "Verify Behavior Preservation")
+  -> @graft.meta(verify_stage, "score", 100)
+  -> @graft.meta(verify_stage, "riskLevel", "high")
+  -> @graft.meta(verify_stage, "reason", "Verify that behavior and thresholds are preserved after refactoring.")
+
+  -> @graft.meta(document_stage, "stage", "DOCUMENT")
+  -> @graft.meta(document_stage, "title", "Document Refactor Decisions")
+  -> @graft.meta(document_stage, "score", 70)
+  -> @graft.meta(document_stage, "riskLevel", "low")
+  -> @graft.meta(document_stage, "reason", "Document preserved behavior and intentional design decisions.")
+
+  // -------------------------------------
+  // Base chain structure
+  // -------------------------------------
+
+  -> @graft.branch(prompt_chain, "hasStage", discover_stage)
+  -> @graft.branch(prompt_chain, "hasStage", plan_stage)
+  -> @graft.branch(prompt_chain, "hasStage", transform_stage)
+  -> @graft.branch(prompt_chain, "hasStage", document_stage)
+
+  -> @graft.branch(discover_stage, "nextStage", plan_stage)
+  -> @graft.branch(plan_stage, "nextStage", transform_stage)
+
+  // -------------------------------------
+  // Complexity rule
+  // -------------------------------------
+
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "complexityLevel" } == "high"
+    then:
+      -> @graft.branch(prompt_chain, "requiresDiscover", discover_stage)
+  }
+
+  // -------------------------------------
+  // Risk rule → VERIFY stage
+  // -------------------------------------
+
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "risk_algorithmic_behavior" } == true
+    then:
+      -> @graft.branch(prompt_chain, "hasStage", verify_stage)
+      -> @graft.branch(transform_stage, "nextStage", verify_stage)
+      -> @graft.branch(verify_stage, "nextStage", document_stage)
+  }
+
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "risk_algorithmic_behavior" } == false
+    then:
+      -> @graft.branch(transform_stage, "nextStage", document_stage)
+  }
+
+  // -------------------------------------
+  // Prompt assignment rules
+  // -------------------------------------
+
+  -> @graft.branch(discover_stage, "usesPrompt", discover_prompt)
+  -> @graft.branch(plan_stage, "usesPrompt", plan_prompt)
+  -> @graft.branch(verify_stage, "usesPrompt", verification_prompt)
+  -> @graft.branch(document_stage, "usesPrompt", documentation_prompt)
+
+  // Pipeline refactor preference
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "pattern_repeated_pipeline" } == true
+    then:
+      -> @graft.branch(transform_stage, "usesPrompt", pipeline_refactor_prompt)
+  }
+
+  // Module extraction
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "target_module_extraction" } == true
+    then:
+      -> @graft.branch(plan_stage, "usesPrompt", module_extraction_prompt)
+  }
+
+  // Complexity reduction
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "target_complexity_reduction" } == true
+    then:
+      -> @graft.branch(transform_stage, "usesPrompt", complexity_reduction_prompt)
+  }
+
+  // Default transform prompt
+  -> @graft.branch(transform_stage, "usesPrompt", module_extraction_prompt)
+
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "pattern_repeated_pipeline" } == true
+    then:
+      -> @graft.branch(transform_stage, "usesPrompt", pipeline_refactor_prompt)
+  }
+
+  -> @if {
+    when: @derive.state { node: prompt_chain key: "target_complexity_reduction" } == true
+    then:
+      -> @graft.branch(transform_stage, "usesPrompt", complexity_reduction_prompt)
+  }
