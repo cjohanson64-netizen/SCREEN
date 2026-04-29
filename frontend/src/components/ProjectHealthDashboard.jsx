@@ -106,24 +106,29 @@ export default function ProjectHealthDashboard({
     <section className="project-health-dashboard">
       <header className="project-health-header">
         <div>
+          <p className="eyebrow">
+            Python measures. TAT interprets. React explains.
+          </p>
+          <br />
           <div className="logo">
-            <img className="tat-logo" src={TatLogo} alt="TAT Logo" />
             <img className="screen-logo" src={ScreenLogo} alt="" />
           </div>
-          <h2>Powered by TryAngleTree</h2>
+          <div className="logo">
+            <img className="tat-logo" src={TatLogo} alt="TAT Logo" />
+            <h2>Powered by TryAngleTree</h2>
+          </div>
           <p>Load a project, analyze code, generate AI prompt for refactor</p>
         </div>
-
       </header>
-        <label className="project-upload-button">
-          Upload Project Zip
-          <input
-            type="file"
-            accept=".zip"
-            onChange={handleProjectUpload}
-            disabled={isUploading}
-          />
-        </label>
+      <label className="project-upload-button">
+        Upload Project Zip
+        <input
+          type="file"
+          accept=".zip"
+          onChange={handleProjectUpload}
+          disabled={isUploading}
+        />
+      </label>
 
       {isUploading && <p className="status-message">Building graph...</p>}
       {error && <p className="error-message">{error}</p>}
