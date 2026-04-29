@@ -14,9 +14,14 @@
   align-items: center;
 }
 
-.logo-img {
+.tat-logo {
   width: 150px;
   border-radius: 50%;
+}
+
+.screen-logo {
+  height: 150px;
+  border-radius: 10px;
 }
 
 

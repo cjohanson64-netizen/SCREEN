@@ -28,9 +28,9 @@
 }
 
 .project-upload-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute;
+  right: 25px;
+  top: 225px;
   border: 1px solid var(--color-accent-border);
   background: var(--color-accent);
   color: white;

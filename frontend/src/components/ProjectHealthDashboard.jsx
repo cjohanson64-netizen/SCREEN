@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import ForceGraph2D from "react-force-graph-2d";
-import Logo from "../assets/TAT-Logo.svg";
+import TatLogo from "../assets/TAT-Logo.svg";
+import ScreenLogo from "../assets/SCREEN-Logo.svg";
 import "../styles/features/project-health-dashboard.css";
 
 const API_URL = "http://localhost:5050/api/project/upload";
@@ -104,18 +105,16 @@ export default function ProjectHealthDashboard({
   return (
     <section className="project-health-dashboard">
       <header className="project-health-header">
-        <div className="logo">
-          <img className="logo-img" src={Logo} alt="TAT Logo" />
-          <div>
-            <h1 className="logo-title">SCREEN</h1>
-            <p className="eyebrow">Semantic Code Reviewer</p>
-            <p className="eyebrow">Engineer Enhancer</p>
-            <p>
-              Upload a project zip to see file risk, imports, and dependents.
-            </p>
+        <div>
+          <div className="logo">
+            <img className="tat-logo" src={TatLogo} alt="TAT Logo" />
+            <img className="screen-logo" src={ScreenLogo} alt="" />
           </div>
+          <h2>Powered by TryAngleTree</h2>
+          <p>Load a project, analyze code, generate AI prompt for refactor</p>
         </div>
 
+      </header>
         <label className="project-upload-button">
           Upload Project Zip
           <input
@@ -125,7 +124,6 @@ export default function ProjectHealthDashboard({
             disabled={isUploading}
           />
         </label>
-      </header>
 
       {isUploading && <p className="status-message">Building graph...</p>}
       {error && <p className="error-message">{error}</p>}
