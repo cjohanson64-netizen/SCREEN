@@ -14,11 +14,12 @@ export default function CodePanel({
   const [code, setCode] = useState(selectedProjectFile?.content || "");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isAnalyzed, setIsAnalyzed] = useState(false);
   const [error, setError] = useState("");
 
   const [result, setResult] = useState(null);
   const [highlightedLines, setHighlightedLines] = useState([]);
+
+  const isProjectFileMode = Boolean(selectedProjectFile);
 
   const resultTabs = useMemo(() => {
     if (!result) return [];
@@ -66,7 +67,6 @@ export default function CodePanel({
         if (cancelled) return;
         setResult(data);
         setHighlightedLines([]);
-        setIsAnalyzed(true);
       } catch (err) {
         if (cancelled) return;
         setError(err.message || "Failed to analyze code.");
@@ -94,17 +94,6 @@ export default function CodePanel({
         ← Back to Health Graph
       </button>
 
-      {selectedProjectFile && (
-        <section className="project-file-banner">
-          <h2>Selected Project File</h2>
-          <p className="project-file-path">{selectedProjectFile.path}</p>
-          <p className="project-file-meta">
-            Risk: {selectedProjectFile.metrics?.riskLevel ?? "unknown"} ·
-            Complexity: {selectedProjectFile.metrics?.complexity ?? 0}
-          </p>
-        </section>
-      )}
-
       {error && (
         <section className="panel">
           <p className="error-message">{error}</p>
@@ -115,7 +104,7 @@ export default function CodePanel({
         <CodeEditor
           filename={filename}
           code={code}
-          isAnalyzed={isAnalyzed}
+          isAnalyzed={isProjectFileMode || Boolean(result)}
           highlightedLines={highlightedLines}
           onFilenameChange={setFilename}
           onCodeChange={setCode}

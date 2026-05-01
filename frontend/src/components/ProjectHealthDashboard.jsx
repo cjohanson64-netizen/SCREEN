@@ -1,8 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from "react";
-import ForceGraph2D from "react-force-graph-2d";
-import TatLogo from "../assets/TAT-Logo.svg";
-import ScreenLogo from "../assets/SCREEN-Logo.svg";
-import "../styles/features/project-health-dashboard.css";
+import { useMemo, useState } from "react";
 
 const API_URL = "http://localhost:5050/api/project/upload";
 
@@ -12,30 +8,157 @@ function getRiskColor(riskLevel) {
   return "#22c55e";
 }
 
-function toGraphData(projectGraph) {
-  if (!projectGraph) {
-    return {
-      nodes: [],
-      links: [],
-    };
+function getRiskRank(riskLevel) {
+  if (riskLevel === "high") return 3;
+  if (riskLevel === "medium") return 2;
+  if (riskLevel === "low") return 1;
+  return 0;
+}
+
+function buildRiskTooltip(node) {
+  const metrics = node.file?.metrics ?? node.metrics ?? {};
+  const factors = getRiskFactors(metrics);
+  const riskLevel = metrics.riskLevel ?? node.riskLevel ?? "unknown";
+
+  const lines = [node.name, `Risk Level: ${riskLevel}`];
+
+  if (factors.length > 0) {
+    lines.push("", "Risk Factors:");
+    factors.forEach((factor) => {
+      lines.push(`• ${factor}`);
+    });
+  } else {
+    lines.push("", "• No major risk factors detected");
   }
 
+  return lines.join("\n");
+}
+
+function buildRiskAriaLabel(node) {
+  const metrics = node.file?.metrics ?? node.metrics ?? {};
+  const factors = getRiskFactors(metrics);
+  const riskLevel = metrics.riskLevel ?? node.riskLevel ?? "unknown";
+
+  if (!factors.length) {
+    return `${node.name}. Risk level ${riskLevel}. No major risk factors detected.`;
+  }
+
+  return `${node.name}. Risk level ${riskLevel}. Risk factors include: ${factors.join(
+    ", ",
+  )}.`;
+}
+
+function getRiskFactors(metrics = {}) {
+  const factors = [];
+
+  if ((metrics.complexity ?? 0) >= 70) {
+    factors.push(`high complexity (${metrics.complexity})`);
+  }
+
+  if ((metrics.lineCount ?? 0) >= 300) {
+    factors.push(`large file (${metrics.lineCount} lines)`);
+  }
+
+  if ((metrics.functionCount ?? 0) >= 12) {
+    factors.push(`many functions (${metrics.functionCount})`);
+  }
+
+  if ((metrics.branchCount ?? 0) >= 20) {
+    factors.push(`many branches (${metrics.branchCount})`);
+  }
+
+  if ((metrics.fanIn ?? 0) >= 5) {
+    factors.push(`high fan-in (${metrics.fanIn})`);
+  }
+
+  if ((metrics.fanOut ?? 0) >= 5) {
+    factors.push(`high fan-out (${metrics.fanOut})`);
+  }
+
+  return factors;
+}
+
+function getHighestRisk(left = "low", right = "low") {
+  return getRiskRank(right) > getRiskRank(left) ? right : left;
+}
+
+function createTreeNode(name, path, type = "folder") {
   return {
-    nodes: projectGraph.nodes.map((node) => ({
-      id: node.path,
-      name: node.name,
-      path: node.path,
-      content: node.content,
-      metrics: node.metrics,
-      imports: node.imports,
-      dependents: node.dependents,
-    })),
-    links: projectGraph.edges.map((edge) => ({
-      source: edge.from,
-      target: edge.to,
-      importPath: edge.importPath,
-    })),
+    name,
+    path,
+    type,
+    children: {},
+    file: null,
+    riskLevel: "low",
   };
+}
+
+function buildProjectTree(projectGraph) {
+  const root = createTreeNode("Project Root", "", "folder");
+
+  if (!projectGraph?.nodes?.length) {
+    return root;
+  }
+
+  for (const fileNode of projectGraph.nodes) {
+    const parts = fileNode.path.split("/").filter(Boolean);
+    let cursor = root;
+
+    parts.forEach((part, index) => {
+      const isFile = index === parts.length - 1;
+      const path = parts.slice(0, index + 1).join("/");
+
+      if (!cursor.children[part]) {
+        cursor.children[part] = createTreeNode(
+          part,
+          path,
+          isFile ? "file" : "folder",
+        );
+      }
+
+      cursor = cursor.children[part];
+
+      if (isFile) {
+        cursor.type = "file";
+        cursor.file = fileNode;
+        cursor.riskLevel = fileNode.metrics?.riskLevel ?? "low";
+      }
+    });
+  }
+
+  propagateFolderRisk(root);
+
+  const rootChildren = Object.values(root.children).sort(sortTreeNodes);
+
+  if (rootChildren.length === 1 && rootChildren[0].type === "folder") {
+    return rootChildren[0];
+  }
+
+  return root;
+}
+
+function propagateFolderRisk(node) {
+  if (node.type === "file") {
+    return node.riskLevel;
+  }
+
+  let riskLevel = "low";
+
+  Object.values(node.children).forEach((child) => {
+    const childRisk = propagateFolderRisk(child);
+    riskLevel = getHighestRisk(riskLevel, childRisk);
+  });
+
+  node.riskLevel = riskLevel;
+  return riskLevel;
+}
+
+function sortTreeNodes(a, b) {
+  if (a.type !== b.type) {
+    return a.type === "folder" ? -1 : 1;
+  }
+
+  return a.name.localeCompare(b.name);
 }
 
 export default function ProjectHealthDashboard({
@@ -44,31 +167,14 @@ export default function ProjectHealthDashboard({
   onAnalyzeFile,
 }) {
   const [selectedNode, setSelectedNode] = useState(null);
+  const [expandedPaths, setExpandedPaths] = useState(new Set());
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
 
-  const graphData = useMemo(() => toGraphData(projectGraph), [projectGraph]);
-
-  const graphPanelRef = useRef(null);
-  const [graphSize, setGraphSize] = useState({
-    width: 900,
-    height: 600,
-  });
-
-  useEffect(() => {
-    if (!graphPanelRef.current) return;
-
-    const observer = new ResizeObserver(([entry]) => {
-      setGraphSize({
-        width: entry.contentRect.width,
-        height: entry.contentRect.height,
-      });
-    });
-
-    observer.observe(graphPanelRef.current);
-
-    return () => observer.disconnect();
-  }, []);
+  const projectTree = useMemo(
+    () => buildProjectTree(projectGraph),
+    [projectGraph],
+  );
 
   async function handleProjectUpload(event) {
     const file = event.target.files?.[0];
@@ -78,6 +184,7 @@ export default function ProjectHealthDashboard({
     setIsUploading(true);
     setError("");
     setSelectedNode(null);
+    setExpandedPaths(new Set());
 
     const formData = new FormData();
     formData.append("project", file);
@@ -102,158 +209,176 @@ export default function ProjectHealthDashboard({
     }
   }
 
+  function toggleFolder(path) {
+    setExpandedPaths((current) => {
+      const next = new Set(current);
+
+      if (next.has(path)) {
+        next.delete(path);
+      } else {
+        next.add(path);
+      }
+
+      return next;
+    });
+  }
+
+  function handleSelectFile(fileNode) {
+    const selected = {
+      path: fileNode.path,
+      name: fileNode.name,
+      content: fileNode.content,
+      metrics: fileNode.metrics,
+      imports: fileNode.imports ?? [],
+      dependents: fileNode.dependents ?? [],
+      validImportPaths: fileNode.validImportPaths ?? [],
+      nearbyFiles: fileNode.nearbyFiles ?? [],
+    };
+
+    setSelectedNode(selected);
+    onAnalyzeFile(selected);
+  }
+
   return (
     <section className="project-health-dashboard">
-      <header className="project-health-header">
-        <div>
-          <p className="eyebrow">
-            Python measures. TAT interprets. React explains.
-          </p>
-          <br />
-          <div className="logo">
-            <img className="screen-logo" src={ScreenLogo} alt="" />
-          </div>
-          <div className="logo">
-            <img className="tat-logo" src={TatLogo} alt="TAT Logo" />
-            <h2>Powered by TryAngleTree</h2>
-          </div>
-          <p>Load a project, analyze code, generate AI prompt for refactor</p>
-        </div>
-      </header>
-      <label className="project-upload-button">
-        Upload Project Zip
-        <input
-          type="file"
-          accept=".zip"
-          onChange={handleProjectUpload}
-          disabled={isUploading}
-        />
-      </label>
+      <div className="project-upload-area">
+        <label className="project-upload-button">
+          Upload Project Zip
+          <input
+            type="file"
+            accept=".zip"
+            onChange={handleProjectUpload}
+            disabled={isUploading}
+          />
+        </label>
 
-      {isUploading && <p className="status-message">Building graph...</p>}
-      {error && <p className="error-message">{error}</p>}
+        {isUploading && <p className="status-message">Building file tree...</p>}
+        {error && <p className="error-message">{error}</p>}
+      </div>
 
       <div className="project-health-layout">
-        <div className="graph-panel" ref={graphPanelRef}>
-          {graphData.nodes.length > 0 ? (
-            <ForceGraph2D
-              width={graphSize.width}
-              height={graphSize.height}
-              graphData={graphData}
-              nodeLabel={(node) =>
-                `${node.name}\nRisk: ${node.metrics.riskLevel}`
-              }
-              nodeColor={(node) => getRiskColor(node.metrics.riskLevel)}
-              nodeRelSize={6}
-              linkDirectionalArrowLength={4}
-              linkDirectionalArrowRelPos={1}
-              linkColor={() => "rgba(148, 163, 184, 0.6)"}
-              onNodeClick={(node) => setSelectedNode(node)}
-              nodeCanvasObject={(node, ctx, globalScale) => {
-                const label = node.name;
-                const fontSize = Math.max(10 / globalScale, 4);
-                const radius = 6;
-
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
-                ctx.fillStyle = getRiskColor(node.metrics.riskLevel);
-                ctx.fill();
-
-                ctx.font = `${fontSize}px Sans-Serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "top";
-                ctx.fillStyle = "#e5e7eb";
-                ctx.fillText(label, node.x, node.y + radius + 2);
-              }}
+        <div className="project-tree-panel">
+          {Object.keys(projectTree.children ?? {}).length > 0 ? (
+            <ProjectCascadeTree
+              rootNode={projectTree}
+              expandedPaths={expandedPaths}
+              selectedPath={selectedNode?.path}
+              onToggleFolder={toggleFolder}
+              onSelectFile={handleSelectFile}
             />
           ) : (
             <div className="empty-graph-state">
               <h2>No project loaded yet</h2>
-              <p>Upload your test zip to generate the first health graph.</p>
+              <p>Upload your project zip to generate the first file tree.</p>
             </div>
           )}
         </div>
-
-        <aside className="node-detail-panel">
-          {selectedNode ? (
-            <NodeDetails node={selectedNode} onAnalyzeFile={onAnalyzeFile} />
-          ) : (
-            <div className="empty-details-state">
-              <h2>Select a file</h2>
-              <p>Click a node to inspect metrics and relationships.</p>
-            </div>
-          )}
-        </aside>
       </div>
     </section>
   );
 }
 
-function NodeDetails({ node, onAnalyzeFile }) {
-  const metrics = node.metrics;
+function ProjectCascadeTree({
+  rootNode,
+  expandedPaths,
+  selectedPath,
+  onToggleFolder,
+  onSelectFile,
+}) {
+  const rootChildren = Object.values(rootNode.children ?? {}).sort(
+    sortTreeNodes,
+  );
 
-  function handleAnalyzeClick() {
-    onAnalyzeFile({
-      path: node.path,
-      name: node.name,
-      content: node.content,
-      metrics: node.metrics,
-      imports: node.imports,
-      dependents: node.dependents,
-    });
+  return (
+    <div className="project-tree-shell">
+      <div className="project-tree-title">
+        <span
+          className="tree-risk-dot"
+          style={{ background: getRiskColor(rootNode.riskLevel) }}
+        />
+        <h2>{rootNode.name}</h2>
+      </div>
+
+      <div className="project-cascade-tree">
+        {rootChildren.map((node) => (
+          <div className="project-root-column" key={node.path}>
+            <TreeNode
+              node={node}
+              depth={0}
+              expandedPaths={expandedPaths}
+              selectedPath={selectedPath}
+              onToggleFolder={onToggleFolder}
+              onSelectFile={onSelectFile}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TreeNode({
+  node,
+  depth,
+  expandedPaths,
+  selectedPath,
+  onToggleFolder,
+  onSelectFile,
+}) {
+  const isFolder = node.type === "folder";
+  const isExpanded = expandedPaths.has(node.path) || depth === 0;
+  const isSelected = selectedPath === node.path;
+  const children = Object.values(node.children ?? {}).sort(sortTreeNodes);
+
+  function handleClick() {
+    if (isFolder) {
+      onToggleFolder(node.path);
+      return;
+    }
+
+    if (node.file) {
+      onSelectFile(node.file);
+    }
   }
 
   return (
-    <div>
-      <h2>{node.name}</h2>
-      <p className="file-path">{node.path}</p>
+    <div className="tree-node-group">
+      <button
+        type="button"
+        className={`tree-node tree-node-${node.type} ${
+          isSelected ? "selected" : ""
+        }`}
+        style={{ paddingLeft: `${depth * 14 + 10}px` }}
+        onClick={handleClick}
+        title={buildRiskTooltip(node)}
+        aria-label={buildRiskAriaLabel(node)}
+      >
+        <span
+          className="tree-risk-dot"
+          style={{ background: getRiskColor(node.riskLevel) }}
+        />
 
-      <div className={`risk-pill risk-${metrics.riskLevel}`}>
-        {metrics.riskLevel.toUpperCase()} RISK
-      </div>
+        <span className="tree-node-icon">{isFolder ? "▸" : "•"}</span>
 
-      <div className="metrics-grid">
-        <Metric label="Risk" value={metrics.risk} />
-        <Metric label="Complexity" value={metrics.complexity} />
-        <Metric label="Lines" value={metrics.lineCount} />
-        <Metric label="Functions" value={metrics.functionCount} />
-        <Metric label="Branches" value={metrics.branchCount} />
-        <Metric label="Fan In" value={metrics.fanIn} />
-        <Metric label="Fan Out" value={metrics.fanOut} />
-      </div>
+        <span className="tree-node-name">{node.name}</span>
 
-      <RelationshipList title="Imports" items={node.imports} />
-      <RelationshipList title="Imported By" items={node.dependents} />
-
-      <button className="analyze-file-button" onClick={handleAnalyzeClick}>
-        Analyze This File
+        {isFolder && <span className="tree-node-count">{children.length}</span>}
       </button>
-    </div>
-  );
-}
 
-function Metric({ label, value }) {
-  return (
-    <div className="metric-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function RelationshipList({ title, items }) {
-  return (
-    <div className="relationship-list">
-      <h3>{title}</h3>
-
-      {items.length > 0 ? (
-        <ul>
-          {items.map((item) => (
-            <li key={item}>{item}</li>
+      {isFolder && isExpanded && children.length > 0 && (
+        <div className="tree-node-children">
+          {children.map((child) => (
+            <TreeNode
+              key={child.path}
+              node={child}
+              depth={depth + 1}
+              expandedPaths={expandedPaths}
+              selectedPath={selectedPath}
+              onToggleFolder={onToggleFolder}
+              onSelectFile={onSelectFile}
+            />
           ))}
-        </ul>
-      ) : (
-        <p>None</p>
+        </div>
       )}
     </div>
   );

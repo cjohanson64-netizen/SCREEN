@@ -11,6 +11,7 @@ from project_graph.metrics import (
 SUPPORTED_EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".css", ".py", ".go", ".java"}
 
 IGNORED_DIRS = {
+    "__MACOSX",
     "node_modules",
     "dist",
     "build",
@@ -20,10 +21,16 @@ IGNORED_DIRS = {
     ".vite",
 }
 
+IGNORED_FILES = {
+    ".DS_Store",
+}
+
 
 def should_ignore_path(path: Path) -> bool:
-    return any(part in IGNORED_DIRS for part in path.parts)
+    if path.name in IGNORED_FILES:
+        return True
 
+    return any(part in IGNORED_DIRS for part in path.parts)
 
 def is_supported_file(path: Path) -> bool:
     return path.suffix in SUPPORTED_EXTENSIONS

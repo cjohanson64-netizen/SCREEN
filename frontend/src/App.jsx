@@ -1,22 +1,9 @@
 import { useState } from "react";
-import "./styles/foundation/theme.css";
-import "./styles/foundation/base.css";
-import "./styles/layout/app-layout.css";
-import "./styles/layout/grids.css";
-import "./styles/ui/panel.css";
-import "./styles/ui/buttons.css";
-import "./styles/ui/forms.css";
-import "./styles/ui/badges.css";
-import "./styles/ui/cards.css";
-import "./styles/ui/tabs.css";
-import "./styles/features/review.css";
-import "./styles/features/repetition.css";
-import "./styles/features/highlighted-code.css";
-import "./styles/features/findings.css";
-import "./styles/features/prompt-config.css";
-import "./styles/features/project-health-dashboard.css";
+import "./App.css";
+import Hero from "./components/Hero";
 import ProjectHealthDashboard from "./components/ProjectHealthDashboard";
 import CodePanel from "./components/CodePanel";
+import Footer from "./components/Footer";
 
 export default function App() {
   const [activeView, setActiveView] = useState("health");
@@ -34,19 +21,27 @@ export default function App() {
 
   if (activeView === "health") {
     return (
-      <ProjectHealthDashboard
-        projectGraph={projectGraph}
-        onProjectGraphChange={setProjectGraph}
-        onAnalyzeFile={handleAnalyzeProjectFile}
-      />
+      <div className="app-shell">
+        <Hero />
+        <ProjectHealthDashboard
+          projectGraph={projectGraph}
+          onProjectGraphChange={setProjectGraph}
+          onAnalyzeFile={handleAnalyzeProjectFile}
+        />
+        <Footer />
+      </div>
     );
   }
 
   return (
-    <CodePanel
-      key={selectedProjectFile?.path ?? "manual-code-panel"}
-      selectedProjectFile={selectedProjectFile}
-      onBackToHealthGraph={handleBackToHealthGraph}
-    />
+    <div className="app-shell">
+      <Hero />
+      <CodePanel
+        key={selectedProjectFile?.path ?? "manual-code-panel"}
+        selectedProjectFile={selectedProjectFile}
+        onBackToHealthGraph={handleBackToHealthGraph}
+      />
+      <Footer />
+    </div>
   );
 }
