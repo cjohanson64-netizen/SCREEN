@@ -1,0 +1,23 @@
+import { graph2, node2 } from "./import-export-source.tat"
+
+node1 = <{ id: "node1", label: "Local Node" }>
+
+graph1 := @seed {
+  nodes: [node1, node2],
+  edges: [],
+  state: {},
+  meta: {},
+  root: node2,
+}
+  -> @graft.branch(node2, connectsTo, node1)
+
+worldGraph := @compose {
+  from: [graph1, graph2],
+  merge: {
+    strategy: "merge",
+    root: node2,
+    namespace: "preserve",
+  },
+}
+
+projection := worldGraph <> @project.apply(graph, node2)

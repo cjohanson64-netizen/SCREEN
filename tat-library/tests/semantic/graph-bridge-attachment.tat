@@ -1,0 +1,40 @@
+hero = <{ type: "character", class: "hero", name: "Hero" }>
+characterRoot = <{ type: "graphRoot", domain: "character" }>
+battleRoot = <{ type: "graphRoot", domain: "battle" }>
+battleParticipant = <{ type: "hook", domain: "battle", accepts: "character" }>
+
+characterGraph := @seed {
+  nodes: [hero, characterRoot, battleRoot, battleParticipant],
+  edges: [
+    [characterRoot : owns : hero],
+    [battleRoot : exposes : battleParticipant],
+  ],
+  state: {},
+  meta: {},
+  root: hero,
+}
+  -> @graft.state(hero, status, "ready")
+  -> @graft.meta(hero, graph, "character")
+
+battleGraph := @seed {
+  nodes: [hero, characterRoot, battleRoot, battleParticipant],
+  edges: [
+    [characterRoot : owns : hero],
+    [battleRoot : exposes : battleParticipant],
+  ],
+  state: {},
+  meta: {},
+  root: hero,
+}
+  -> @graft.meta(battleParticipant, hook, true)
+  -> @graft.meta(battleParticipant, accepts, "character")
+
+@graph(battleGraph) : @ctx(hero) :: @graph(characterGraph) {
+  through: battleParticipant,
+  condition: @query.state(hero, status, "ready"),
+} -> @effect {
+  -> @graft.meta(hero, joinedBattle, true)
+  -> @graft.state(hero, battleStatus, "active")
+}
+
+result := characterGraph <> @project.apply(graph, hero)

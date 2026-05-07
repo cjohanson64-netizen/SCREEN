@@ -1,0 +1,258 @@
+{
+  "Bound seed graph": {
+    "prefix": "seed",
+    "body": [
+      "${1:graphName} := @seed {",
+      "  nodes: [${2:root}],",
+      "  edges: [],",
+      "  state: {},",
+      "  meta: {},",
+      "  root: ${2:root},",
+      "}"
+    ],
+    "description": "Create a canonical bound @seed graph"
+  },
+  "Node declaration": {
+    "prefix": "node",
+    "body": [
+      "${1:nodeName} = <{",
+      "  ${2:name}: \"${3:Name}\",",
+      "}>"
+    ],
+    "description": "Declare an authored TAT node"
+  },
+  "Graph pipeline": {
+    "prefix": "graph",
+    "body": [
+      "${1:graph} := @seed {",
+      "  nodes: [${2:root}, ${3:child}],",
+      "  edges: [[${2:root} : ${4:connectsTo} : ${3:child}]],",
+      "  state: {},",
+      "  meta: {},",
+      "  root: ${2:root},",
+      "}",
+      "  -> @graft.state(${2:root}, ${5:status}, \"${6:active}\")"
+    ],
+    "description": "Create a bound graph seed with a pipeline"
+  },
+  "Graph bridge explicit": {
+    "prefix": "graph.bridge",
+    "body": [
+      "@graph(${1:g1}) : @ctx(${2:root}) :: @graph(${3:g2}) {",
+      "  through: ${4:hookNode},",
+      "  condition: ${5:@query.state(root, status, \"ready\")},",
+      "} -> @effect {",
+      "  -> ${6:@graft.meta(root, bridged, true)}",
+      "}"
+    ],
+    "description": "Create an explicit graph bridge with effect pipeline"
+  },
+  "Graph bridge shorthand": {
+    "prefix": "graph.bridge.short",
+    "body": [
+      "@graph(${1:g1}) ::: @graph(${2:g2}) {",
+      "  through: ${3:hookNode},",
+      "} -> @effect {",
+      "  -> ${4:@graft.meta(root, bridged, true)}",
+      "}"
+    ],
+    "description": "Create an implicit-context graph bridge with effect pipeline"
+  },
+  "Effect pipeline": {
+    "prefix": "effect",
+    "body": [
+      "@effect {",
+      "  -> ${1:@graft.state(root, status, active)}",
+      "}"
+    ],
+    "description": "Create an effect pipeline"
+  },
+  "Action define": {
+    "prefix": "action.define",
+    "body": [
+      "@action.define(${1:actionName}) {",
+      "  when: ${2:@query.state(root, status, \"active\")},",
+      "  do: {",
+      "    -> ${3:@graft.meta(root, lastAction, \"ran\")}",
+      "  },",
+      "  project: ${4:root},",
+      "}"
+    ],
+    "description": "Define a reusable action"
+  },
+  "Action apply": {
+    "prefix": "action.apply",
+    "body": [
+      "-> @action.apply(${1:actionName})"
+    ],
+    "description": "Apply a reusable action in a pipeline"
+  },
+  "Project define": {
+    "prefix": "project.define",
+    "body": [
+      "@project.define(${1:ExpandedProjection}, ${2:root}) {",
+      "  contract: {",
+      "    id: required,",
+      "    label: optional,",
+      "  },",
+      "  fields: {",
+      "    id: \"node\",",
+      "    label: \"name\",",
+      "  },",
+      "}"
+    ],
+    "description": "Define a reusable projection"
+  },
+  "Project apply": {
+    "prefix": "project.apply",
+    "body": [
+      "${1:projection} := ${2:graph}",
+      "  <> @project.apply(${3:ExpandedProjection}, ${4:root})"
+    ],
+    "description": "Apply a projection using projection flow"
+  },
+  "Value define": {
+    "prefix": "value.define",
+    "body": [
+      "@value.define(${1:valueScope}) {",
+      "  ${2:key}: ${3:@compute.abs(1)},",
+      "}"
+    ],
+    "description": "Define a named evaluated value scope"
+  },
+  "Inject": {
+    "prefix": "inject",
+    "body": [
+      "<- @inject(${1:hookRef}, \"${2:.py}\")"
+    ],
+    "description": "Inject validated source from a runtime hook"
+  },
+  "Graft branch": {
+    "prefix": "graft.branch",
+    "body": [
+      "-> @graft.branch(${1:sourceNode}, ${2:relation}, ${3:targetNode})"
+    ],
+    "description": "Create a structural edge"
+  },
+  "Graft state": {
+    "prefix": "graft.state",
+    "body": [
+      "-> @graft.state(${1:nodeName}, ${2:key}, ${3:value})"
+    ],
+    "description": "Attach or update state"
+  },
+  "Graft meta": {
+    "prefix": "graft.meta",
+    "body": [
+      "-> @graft.meta(${1:nodeName}, ${2:key}, ${3:value})"
+    ],
+    "description": "Attach or update metadata"
+  },
+  "Query state": {
+    "prefix": "query.state",
+    "body": [
+      "@query.state(${1:node}, ${2:key}, ${3:value})"
+    ],
+    "description": "Check node state equality"
+  },
+  "Query edge": {
+    "prefix": "query.edge",
+    "body": [
+      "@query.edge(${1:subject}, ${2:relation}, ${3:object})"
+    ],
+    "description": "Check whether a directed edge exists"
+  },
+  "Query meta": {
+    "prefix": "query.meta",
+    "body": [
+      "@query.meta(${1:node}, ${2:key}, ${3:value})"
+    ],
+    "description": "Check node metadata equality"
+  },
+  "Match edge": {
+    "prefix": "match.edge",
+    "body": [
+      "@match.edge(${1:root}, ${2:connectsTo}, ${3:child})"
+    ],
+    "description": "Match an explicit edge pattern"
+  },
+  "Path has": {
+    "prefix": "path.has",
+    "body": [
+      "@path.has(${1:start}, ${2:target}) {",
+      "  relation: ${3:connectsTo},",
+      "  direction: ${4:outgoing},",
+      "  depth: ${5:2},",
+      "}"
+    ],
+    "description": "Check whether a path exists"
+  },
+  "If block": {
+    "prefix": "if",
+    "body": [
+      "-> @if(${1:@query.state(root, status, active)}) {",
+      "  then: {",
+      "    -> ${2:@graft.state(root, status, active)}",
+      "  },",
+      "  else: {",
+      "    -> ${3:@graft.state(root, status, inactive)}",
+      "  },",
+      "}"
+    ],
+    "description": "Create a control-flow @if block"
+  },
+  "When block": {
+    "prefix": "when",
+    "body": [
+      "-> @when(${1:@query.edge(root, connectsTo, child)}) {",
+      "  -> ${2:@graft.meta(root, triggered, true)}",
+      "}"
+    ],
+    "description": "Create a @when pipeline block"
+  },
+  "Choose value": {
+    "prefix": "choose",
+    "body": [
+      "@choose(${1:condition}) {",
+      "  then: ${2:\"yes\"},",
+      "  else: ${3:\"no\"},",
+      "}"
+    ],
+    "description": "Return one value or another based on a condition"
+  },
+  "Compose graph": {
+    "prefix": "compose",
+    "body": [
+      "${1:worldGraph} := @compose {",
+      "  from: [${2:graphA}, ${3:graphB}],",
+      "  keep: {",
+      "    nodes: [${4:root}],",
+      "    edges: [${5:connectsTo}],",
+      "    state: [${6:status}],",
+      "    meta: [${7:label}],",
+      "  },",
+      "  prune: {",
+      "    nodes: [],",
+      "    edges: [],",
+      "    state: [],",
+      "    meta: [],",
+      "  },",
+      "  merge: {",
+      "    strategy: merge,",
+      "    root: ${4:root},",
+      "    namespace: preserve,",
+      "  },",
+      "}"
+    ],
+    "description": "Compose graph sources with keep/prune/merge rules"
+  },
+  "Bind semantic alias": {
+    "prefix": "bind",
+    "body": [
+      "@bind(${1:aliasName}) {",
+      "  ${2:root}",
+      "}"
+    ],
+    "description": "Create a read-only semantic alias"
+  }
+}

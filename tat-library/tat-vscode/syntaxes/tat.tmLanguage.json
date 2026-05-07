@@ -1,0 +1,276 @@
+{
+  "name": "TAT",
+  "scopeName": "source.tat",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#nodeDefinitions"
+    },
+    {
+      "include": "#graphBindings"
+    },
+    {
+      "include": "#directives"
+    },
+    {
+      "include": "#imports"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#brackets"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#properties"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.tat",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.tat",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.tat",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.tat",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.tat",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.tat",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "directives": {
+      "patterns": [
+        {
+          "name": "support.function.query.tat",
+          "match": "@query\\.(edge|state|meta)\\b"
+        },
+        {
+          "name": "support.function.match.tat",
+          "match": "@match\\.edge\\b"
+        },
+        {
+          "name": "keyword.control.directive.core.tat",
+          "match": "@(seed|where|why|how|inject)\\b"
+        },
+        {
+          "name": "support.function.path.tat",
+          "match": "@path\\.(has|first|count|through)\\b"
+        },
+        {
+          "name": "support.function.project.tat",
+          "match": "@project\\.(define|apply)\\b"
+        },
+        {
+          "name": "support.function.value.tat",
+          "match": "@value\\.define\\b"
+        },
+        {
+          "name": "support.function.compose.tat",
+          "match": "@compose\\b"
+        },
+        {
+          "name": "keyword.control.directive.graph.tat",
+          "match": "@(graph|effect)\\b"
+        },
+        {
+          "name": "keyword.control.directive.action.tat",
+          "match": "@action\\.(define|apply)\\b"
+        },
+        {
+          "name": "keyword.control.directive.control.tat",
+          "match": "@(repeat|if|when|choose)\\b"
+        },
+        {
+          "name": "support.function.bind.tat",
+          "match": "@bind\\b"
+        },
+        {
+          "name": "support.function.ctx.tat",
+          "match": "@ctx\\b"
+        },
+        {
+          "name": "support.function.runtime.tat",
+          "match": "@runtime\\.(addNode|updateNodeValue|deleteNode|generateValueId|generateNodeId|nextOrder)\\b"
+        },
+        {
+          "name": "support.function.graft.tat",
+          "match": "@graft\\.(branch|state|meta|progress)\\b"
+        },
+        {
+          "name": "support.function.prune.tat",
+          "match": "@prune\\.(branch|state|meta|nodes|edges)\\b"
+        },
+        {
+          "name": "support.function.derive.tat",
+          "match": "@derive\\.(state|meta|path|collect)\\b"
+        },
+        {
+          "name": "support.function.compute.tat",
+          "match": "@compute\\.(count|edgeCount|exists|sum|min|max|avg|abs|subtract)\\b"
+        },
+        {
+          "name": "support.function.select.tat",
+          "match": "@select\\.(node|targets|sources|first|only|from)\\b"
+        }
+      ]
+    },
+    "imports": {
+      "patterns": [
+        {
+          "name": "keyword.control.import.tat",
+          "match": "\\b(import|from)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.tat",
+          "match": "\\b(true|false|null)\\b"
+        },
+        {
+          "name": "keyword.other.tat",
+          "match": "\\b(nodes|edges|state|meta|root|from|keep|prune|merge|strategy|namespace|through|condition|target|ops|pipeline|project|contract|fields|then|else|where|relation|direction|depth|outgoing|incoming|both|any|required|optional|preserve|overlay|link)\\b"
+        }
+      ]
+    },
+    "nodeDefinitions": {
+      "patterns": [
+        {
+          "name": "entity.name.type.node.tat",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b(?=\\s*=\\s*<\\s*\\{)"
+        }
+      ]
+    },
+    "graphBindings": {
+      "patterns": [
+        {
+          "name": "entity.name.function.graph-binding.tat",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b(?=\\s*:=\\s*@(?:seed|compose|action|project|projection|graph|inject|compute|derive|select|query|match|path))"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.flow.projection.tat",
+          "match": "<>"
+        },
+        {
+          "name": "keyword.operator.flow.injection.tat",
+          "match": "<-"
+        },
+        {
+          "name": "keyword.operator.flow.execution.tat",
+          "match": "->"
+        },
+        {
+          "name": "keyword.operator.graph-bridge.tat",
+          "match": "::|(?<=\\))\\s*:(?=\\s*@ctx\\b)"
+        },
+        {
+          "name": "keyword.operator.assignment.tat",
+          "match": ":=|="
+        },
+        {
+          "name": "keyword.operator.comparison.tat",
+          "match": ">=|<=|==|!="
+        },
+        {
+          "name": "keyword.operator.comparison.tat",
+          "match": "(?<=\\s)[<>](?=\\s)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.tat",
+          "match": "[+*/%-]"
+        },
+        {
+          "name": "keyword.operator.logical.tat",
+          "match": "\\b(AND|OR|NOT|and|or|not)\\b"
+        }
+      ]
+    },
+    "brackets": {
+      "patterns": [
+        {
+          "name": "punctuation.section.parens.tat",
+          "match": "[()]"
+        },
+        {
+          "name": "punctuation.section.braces.tat",
+          "match": "[{}]"
+        },
+        {
+          "name": "punctuation.section.brackets.tat",
+          "match": "[\\[\\]]"
+        },
+        {
+          "name": "punctuation.section.angle.tat",
+          "match": "[<>]"
+        },
+        {
+          "name": "punctuation.section.angle.tat",
+          "match": "<(?=\\s*[\\{\\[])"
+        },
+        {
+          "name": "punctuation.section.angle.tat",
+          "match": "(?<=[\\}\\]])\\s*>"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.tat",
+          "match": "\\b\\d+(\\.\\d)?\\b"
+        }
+      ]
+    },
+    "properties": {
+      "patterns": [
+        {
+          "name": "variable.other.property.tat",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b(?=\\s*:)"
+        }
+      ]
+    }
+  }
+}

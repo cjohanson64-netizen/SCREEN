@@ -1,0 +1,24 @@
+node1 = <{ id: "node1", label: "Node 1" }>
+node2 = <{ id: "node2", label: "Node 2" }>
+
+@project.define(ExpandedProjection, node1) {
+  contract: {
+    id: required,
+    label: optional,
+  },
+  fields: {
+    id: "node",
+    label: "name",
+  },
+}
+
+graph := @seed {
+  nodes: [node1, node2],
+  edges: [],
+  state: {},
+  meta: {},
+  root: node1,
+}
+  -> @graft.branch(node1, connectsTo, node2)
+
+projection := graph <> @project.apply(ExpandedProjection, node1)

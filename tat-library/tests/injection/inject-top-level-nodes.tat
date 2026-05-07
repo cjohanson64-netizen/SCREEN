@@ -1,0 +1,12 @@
+root = <{ name: "Root" }>
+
+<- @inject(python_nodes, ".py")
+
+graph := @seed {
+  nodes: [root],
+  edges: [],
+  state: {},
+  meta: {},
+  root: root,
+}
+  <> @project.apply(graph, root)

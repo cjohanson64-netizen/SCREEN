@@ -1,0 +1,13 @@
+root = <{ name: "Root" }>
+
+graph := @seed {
+  nodes: [root],
+  edges: [],
+  state: {},
+  meta: {},
+  root: root,
+}
+  -> @graft.state(root, status, before)
+  <- @inject(python_steps, ".py")
+  -> @graft.meta(root, phase, after)
+  <> @project.apply(graph, root)

@@ -1,0 +1,342 @@
+prompt_chain = <{}>
+
+discover_phase = <{}>
+plan_phase = <{}>
+transform_phase = <{}>
+verify_phase = <{}>
+document_phase = <{}>
+
+pipeline_refactor = <{}>
+module_extraction = <{}>
+complexity_reduction = <{}>
+duplication_reduction = <{}>
+
+hook_extraction = <{}>
+component_extraction = <{}>
+analyzer_module_extraction = <{}>
+handler_extraction = <{}>
+
+boolean_rule_extraction = <{}>
+threshold_config_extraction = <{}>
+state_flag_grouping = <{}>
+decision_rule_extraction = <{}>
+visibility_rule_extraction = <{}>
+
+behavior_preserving_constraint = <{}>
+architecture_awareness_constraint = <{}>
+test_first_constraint = <{}>
+
+high_risk_chain = <{}>
+medium_risk_chain = <{}>
+low_risk_chain = <{}>
+
+view_model_extraction = <{}>
+action_guard_extraction = <{}>
+function_expression_review = <{}>
+
+import_boundary_review = <{}>
+ui_data_boundary_review = <{}>
+production_dependency_review = <{}>
+export_surface_review = <{}>
+utility_grab_bag_refactor = <{}>
+barrel_api_review = <{}>
+
+graph := @seed {
+  nodes: [
+    prompt_chain,
+
+    discover_phase,
+    plan_phase,
+    transform_phase,
+    verify_phase,
+    document_phase,
+
+    pipeline_refactor,
+    module_extraction,
+    complexity_reduction,
+    duplication_reduction,
+
+    hook_extraction,
+    component_extraction,
+    analyzer_module_extraction,
+    handler_extraction,
+
+    boolean_rule_extraction,
+    threshold_config_extraction,
+    state_flag_grouping,
+    decision_rule_extraction,
+    visibility_rule_extraction,
+
+    behavior_preserving_constraint,
+    architecture_awareness_constraint,
+    test_first_constraint,
+
+    high_risk_chain,
+    medium_risk_chain,
+    low_risk_chain,
+
+    view_model_extraction,
+    action_guard_extraction,
+    function_expression_review,
+
+    import_boundary_review,
+    ui_data_boundary_review,
+    production_dependency_review,
+    export_surface_review,
+    utility_grab_bag_refactor,
+    barrel_api_review,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  <- @inject(python_prompt_chain_state, ".py")
+
+  // -----------------------------
+  // Base chain
+  // -----------------------------
+
+  -> @graft.branch(prompt_chain, includesPhase, discover_phase)
+  -> @graft.branch(prompt_chain, includesPhase, plan_phase)
+  -> @graft.branch(prompt_chain, includesPhase, transform_phase)
+  -> @graft.branch(prompt_chain, includesPhase, verify_phase)
+  -> @graft.branch(prompt_chain, includesPhase, document_phase)
+
+  -> @graft.branch(discover_phase, comesBefore, plan_phase)
+  -> @graft.branch(plan_phase, comesBefore, transform_phase)
+  -> @graft.branch(transform_phase, comesBefore, verify_phase)
+  -> @graft.branch(verify_phase, comesBefore, document_phase)
+
+  // -----------------------------
+  // General prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_pipeline_refactor)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, pipeline_refactor)
+      -> @graft.branch(pipeline_refactor, shouldStartWith, discover_phase)
+      -> @graft.branch(pipeline_refactor, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_module_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, module_extraction)
+      -> @graft.branch(module_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(module_extraction, shouldPlanBefore, transform_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_complexity_reduction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, complexity_reduction)
+      -> @graft.branch(complexity_reduction, shouldStartWith, discover_phase)
+      -> @graft.branch(complexity_reduction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(complexity_reduction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_duplication_reduction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, duplication_reduction)
+      -> @graft.branch(duplication_reduction, shouldStartWith, discover_phase)
+      -> @graft.branch(duplication_reduction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  // -----------------------------
+  // Function-profile prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_hook_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, hook_extraction)
+      -> @graft.branch(hook_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(hook_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(hook_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_component_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, component_extraction)
+      -> @graft.branch(component_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(component_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(component_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_analyzer_module_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, analyzer_module_extraction)
+      -> @graft.branch(analyzer_module_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(analyzer_module_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(analyzer_module_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_handler_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, handler_extraction)
+      -> @graft.branch(handler_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(handler_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(handler_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  // -----------------------------
+  // Constant-profile prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_boolean_rule_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, boolean_rule_extraction)
+      -> @graft.branch(boolean_rule_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(boolean_rule_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(boolean_rule_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_threshold_config_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, threshold_config_extraction)
+      -> @graft.branch(threshold_config_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(threshold_config_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(threshold_config_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_state_flag_grouping)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, state_flag_grouping)
+      -> @graft.branch(state_flag_grouping, shouldStartWith, discover_phase)
+      -> @graft.branch(state_flag_grouping, shouldPlanBefore, transform_phase)
+      -> @graft.branch(state_flag_grouping, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_decision_rule_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, decision_rule_extraction)
+      -> @graft.branch(decision_rule_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(decision_rule_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(decision_rule_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_visibility_rule_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, visibility_rule_extraction)
+      -> @graft.branch(visibility_rule_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(visibility_rule_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(visibility_rule_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  // -----------------------------
+  // Constant role / value-shape prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_view_model_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, view_model_extraction)
+      -> @graft.branch(view_model_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(view_model_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(view_model_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_action_guard_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, action_guard_extraction)
+      -> @graft.branch(action_guard_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(action_guard_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(action_guard_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_function_expression_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, function_expression_review)
+      -> @graft.branch(function_expression_review, shouldStartWith, discover_phase)
+      -> @graft.branch(function_expression_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  // -----------------------------
+  // Import/export prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_import_boundary_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, import_boundary_review)
+      -> @graft.branch(import_boundary_review, shouldStartWith, discover_phase)
+      -> @graft.branch(import_boundary_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(import_boundary_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_ui_data_boundary_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, ui_data_boundary_review)
+      -> @graft.branch(ui_data_boundary_review, shouldStartWith, discover_phase)
+      -> @graft.branch(ui_data_boundary_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(ui_data_boundary_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_production_dependency_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, production_dependency_review)
+      -> @graft.branch(production_dependency_review, shouldStartWith, discover_phase)
+      -> @graft.branch(production_dependency_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(production_dependency_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_export_surface_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, export_surface_review)
+      -> @graft.branch(export_surface_review, shouldStartWith, discover_phase)
+      -> @graft.branch(export_surface_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(export_surface_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_utility_grab_bag_refactor)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, utility_grab_bag_refactor)
+      -> @graft.branch(utility_grab_bag_refactor, shouldStartWith, discover_phase)
+      -> @graft.branch(utility_grab_bag_refactor, shouldPlanBefore, transform_phase)
+      -> @graft.branch(utility_grab_bag_refactor, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_barrel_api_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, barrel_api_review)
+      -> @graft.branch(barrel_api_review, shouldStartWith, discover_phase)
+      -> @graft.branch(barrel_api_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  // -----------------------------
+  // Constraints
+  // -----------------------------
+
+  -> @graft.branch(prompt_chain, requiresConstraint, behavior_preserving_constraint)
+  -> @graft.branch(prompt_chain, requiresConstraint, architecture_awareness_constraint)
+
+  -> @if(@derive.state(prompt_chain, complexity_high)) {
+    then: {
+      -> @graft.branch(prompt_chain, requiresConstraint, test_first_constraint)
+      -> @graft.branch(prompt_chain, hasRiskProfile, high_risk_chain)
+    },
+    else: {
+      -> @graft.branch(prompt_chain, hasRiskProfile, medium_risk_chain)
+    },
+  }
+
+projection := graph <> @project.apply(graph, prompt_chain)

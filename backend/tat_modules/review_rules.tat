@@ -1,0 +1,831 @@
+file_analysis = <{}>
+
+long_file = <{}>
+token_heavy = <{}>
+function_heavy = <{}>
+hook_heavy = <{}>
+component_heavy = <{}>
+getter_heavy = <{}>
+setter_heavy = <{}>
+predicate_heavy = <{}>
+analyzer_heavy = <{}>
+handler_heavy = <{}>
+builder_heavy = <{}>
+transformer_heavy = <{}>
+io_heavy = <{}>
+orchestrator_heavy = <{}>
+
+constant_heavy = <{}>
+boolean_constant_heavy = <{}>
+threshold_constant_heavy = <{}>
+flag_constant_heavy = <{}>
+decision_rule_constant_heavy = <{}>
+predicate_constant_heavy = <{}>
+capability_constant_heavy = <{}>
+requirement_rule_constant_heavy = <{}>
+feature_flag_constant_heavy = <{}>
+visibility_flag_heavy = <{}>
+state_flag_heavy = <{}>
+validation_flag_heavy = <{}>
+
+block_heavy = <{}>
+deeply_nested = <{}>
+long_lines = <{}>
+repetition_high = <{}>
+complexity_high = <{}>
+decision_heavy = <{}>
+loop_heavy = <{}>
+boolean_heavy = <{}>
+error_handling_heavy = <{}>
+
+structure_cluster = <{}>
+complexity_cluster = <{}>
+function_profile_cluster = <{}>
+constant_profile_cluster = <{}>
+react_cluster = <{}>
+data_access_cluster = <{}>
+rule_logic_cluster = <{}>
+analysis_cluster = <{}>
+interaction_cluster = <{}>
+boolean_logic_cluster = <{}>
+configuration_cluster = <{}>
+ui_state_cluster = <{}>
+
+risky_to_extend = <{}>
+
+finding_file_too_large = <{}>
+finding_complexity_high = <{}>
+finding_duplication_high = <{}>
+finding_refactor_first = <{}>
+
+finding_hooks_should_move = <{}>
+finding_components_should_split = <{}>
+finding_getters_should_group = <{}>
+finding_predicates_should_group = <{}>
+finding_analyzers_should_group = <{}>
+finding_handlers_should_group = <{}>
+
+finding_boolean_constants_should_group = <{}>
+finding_threshold_constants_should_group = <{}>
+finding_flag_constants_should_group = <{}>
+finding_decision_constants_should_group = <{}>
+
+render_data_projection = <{}>
+entity_alias_heavy = <{}>
+collection_alias_heavy = <{}>
+derived_value_heavy = <{}>
+boolean_expression_constant_heavy = <{}>
+action_guard_heavy = <{}>
+function_expression_constant_heavy = <{}>
+view_model_pressure = <{}>
+
+render_projection_cluster = <{}>
+view_model_cluster = <{}>
+action_guard_cluster = <{}>
+
+finding_render_data_projection_should_extract = <{}>
+finding_action_guards_should_group = <{}>
+finding_function_expressions_should_review = <{}>
+finding_view_model_pressure = <{}>
+
+import_heavy = <{}>
+external_import_heavy = <{}>
+local_import_heavy = <{}>
+deep_relative_import_heavy = <{}>
+wide_named_import_heavy = <{}>
+import_responsibility_spread = <{}>
+ui_imports_data_access = <{}>
+ui_imports_domain_logic = <{}>
+production_imports_test_support = <{}>
+
+export_heavy = <{}>
+named_export_heavy = <{}>
+default_export_present = <{}>
+reexport_heavy = <{}>
+star_reexport_present = <{}>
+barrel_file = <{}>
+public_api_pressure = <{}>
+export_responsibility_spread = <{}>
+mixed_export_roles = <{}>
+utility_grab_bag = <{}>
+type_export_heavy = <{}>
+
+import_profile_cluster = <{}>
+export_profile_cluster = <{}>
+architecture_boundary_cluster = <{}>
+public_api_cluster = <{}>
+dependency_coupling_cluster = <{}>
+
+finding_import_responsibility_spread = <{}>
+finding_ui_imports_data_access = <{}>
+finding_ui_imports_domain_logic = <{}>
+finding_production_imports_test_support = <{}>
+finding_export_responsibility_spread = <{}>
+finding_utility_grab_bag = <{}>
+finding_barrel_file = <{}>
+finding_public_api_pressure = <{}>
+
+graph := @seed {
+  nodes: [
+    file_analysis,
+
+    long_file,
+    token_heavy,
+    function_heavy,
+    hook_heavy,
+    component_heavy,
+    getter_heavy,
+    setter_heavy,
+    predicate_heavy,
+    analyzer_heavy,
+    handler_heavy,
+    builder_heavy,
+    transformer_heavy,
+    io_heavy,
+    orchestrator_heavy,
+
+    constant_heavy,
+    boolean_constant_heavy,
+    threshold_constant_heavy,
+    flag_constant_heavy,
+    decision_rule_constant_heavy,
+    predicate_constant_heavy,
+    capability_constant_heavy,
+    requirement_rule_constant_heavy,
+    feature_flag_constant_heavy,
+    visibility_flag_heavy,
+    state_flag_heavy,
+    validation_flag_heavy,
+
+    block_heavy,
+    deeply_nested,
+    long_lines,
+    repetition_high,
+    complexity_high,
+    decision_heavy,
+    loop_heavy,
+    boolean_heavy,
+    error_handling_heavy,
+
+    structure_cluster,
+    complexity_cluster,
+    function_profile_cluster,
+    constant_profile_cluster,
+    react_cluster,
+    data_access_cluster,
+    rule_logic_cluster,
+    analysis_cluster,
+    interaction_cluster,
+    boolean_logic_cluster,
+    configuration_cluster,
+    ui_state_cluster,
+    render_projection_cluster,
+    view_model_cluster,
+    action_guard_cluster,
+    import_profile_cluster,
+    export_profile_cluster,
+    architecture_boundary_cluster,
+    public_api_cluster,
+    dependency_coupling_cluster,
+
+    risky_to_extend,
+
+    finding_file_too_large,
+    finding_complexity_high,
+    finding_duplication_high,
+    finding_refactor_first,
+
+    finding_hooks_should_move,
+    finding_components_should_split,
+    finding_getters_should_group,
+    finding_predicates_should_group,
+    finding_analyzers_should_group,
+    finding_handlers_should_group,
+
+    finding_boolean_constants_should_group,
+    finding_threshold_constants_should_group,
+    finding_flag_constants_should_group,
+    finding_decision_constants_should_group,
+
+    finding_render_data_projection_should_extract,
+    finding_action_guards_should_group,
+    finding_function_expressions_should_review,
+    finding_view_model_pressure,
+    
+    finding_import_responsibility_spread,
+    finding_ui_imports_data_access,
+    finding_ui_imports_domain_logic,
+    finding_production_imports_test_support,
+    finding_export_responsibility_spread,
+    finding_utility_grab_bag,
+    finding_barrel_file,
+    finding_public_api_pressure,
+    
+    render_data_projection,
+    entity_alias_heavy,
+    collection_alias_heavy,
+    derived_value_heavy,
+    boolean_expression_constant_heavy,
+    action_guard_heavy,
+    function_expression_constant_heavy,
+    view_model_pressure,
+
+    import_heavy,
+    external_import_heavy,
+    local_import_heavy,
+    deep_relative_import_heavy,
+    wide_named_import_heavy,
+    import_responsibility_spread,
+    ui_imports_data_access,
+    ui_imports_domain_logic,
+    production_imports_test_support,
+
+    export_heavy,
+    named_export_heavy,
+    default_export_present,
+    reexport_heavy,
+    star_reexport_present,
+    barrel_file,
+    public_api_pressure,
+    export_responsibility_spread,
+    mixed_export_roles,
+    utility_grab_bag,
+    type_export_heavy,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  <- @inject(python_review_state, ".py")
+
+  // -----------------------------
+  // Size / structure signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, lineCount) > 300) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, long_file)
+      -> @graft.branch(long_file, belongsToCluster, structure_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_file_too_large)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, tokenEstimate) > 2500) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, token_heavy)
+      -> @graft.branch(token_heavy, belongsToCluster, structure_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, functionCount) > 12) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, function_heavy)
+      -> @graft.branch(function_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, blockCount) > 40) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, block_heavy)
+      -> @graft.branch(block_heavy, belongsToCluster, structure_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, maxNestingDepth) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, deeply_nested)
+      -> @graft.branch(deeply_nested, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, longLines) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, long_lines)
+      -> @graft.branch(long_lines, belongsToCluster, structure_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Semantic function profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, hookFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, hook_heavy)
+      -> @graft.branch(hook_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(hook_heavy, belongsToCluster, react_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_hooks_should_move)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, componentFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, component_heavy)
+      -> @graft.branch(component_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(component_heavy, belongsToCluster, react_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_components_should_split)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, getterFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, getter_heavy)
+      -> @graft.branch(getter_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(getter_heavy, belongsToCluster, data_access_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_getters_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, setterFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, setter_heavy)
+      -> @graft.branch(setter_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, predicateFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, predicate_heavy)
+      -> @graft.branch(predicate_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(predicate_heavy, belongsToCluster, rule_logic_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_predicates_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, analyzerFunctionCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, analyzer_heavy)
+      -> @graft.branch(analyzer_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(analyzer_heavy, belongsToCluster, analysis_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_analyzers_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, handlerFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, handler_heavy)
+      -> @graft.branch(handler_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(handler_heavy, belongsToCluster, interaction_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_handlers_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, builderFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, builder_heavy)
+      -> @graft.branch(builder_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, transformerFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, transformer_heavy)
+      -> @graft.branch(transformer_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, ioFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, io_heavy)
+      -> @graft.branch(io_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(io_heavy, belongsToCluster, data_access_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, orchestratorFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, orchestrator_heavy)
+      -> @graft.branch(orchestrator_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Semantic constant profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, constantCount) > 16) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, constant_heavy)
+      -> @graft.branch(constant_heavy, belongsToCluster, constant_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, booleanConstantCount) > 7) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, boolean_constant_heavy)
+      -> @graft.branch(boolean_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(boolean_constant_heavy, belongsToCluster, boolean_logic_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_boolean_constants_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, thresholdConstantCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, threshold_constant_heavy)
+      -> @graft.branch(threshold_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(threshold_constant_heavy, belongsToCluster, configuration_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_threshold_constants_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, flagConstantCount) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, flag_constant_heavy)
+      -> @graft.branch(flag_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(flag_constant_heavy, belongsToCluster, ui_state_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_flag_constants_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, decisionRuleConstantCount) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, decision_rule_constant_heavy)
+      -> @graft.branch(decision_rule_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(decision_rule_constant_heavy, belongsToCluster, boolean_logic_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_decision_constants_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, predicateConstantCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, predicate_constant_heavy)
+      -> @graft.branch(predicate_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(predicate_constant_heavy, belongsToCluster, boolean_logic_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, capabilityConstantCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, capability_constant_heavy)
+      -> @graft.branch(capability_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(capability_constant_heavy, belongsToCluster, boolean_logic_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, requirementRuleConstantCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, requirement_rule_constant_heavy)
+      -> @graft.branch(requirement_rule_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(requirement_rule_constant_heavy, belongsToCluster, boolean_logic_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, featureFlagConstantCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, feature_flag_constant_heavy)
+      -> @graft.branch(feature_flag_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(feature_flag_constant_heavy, belongsToCluster, ui_state_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, visibilityFlagConstantCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, visibility_flag_heavy)
+      -> @graft.branch(visibility_flag_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(visibility_flag_heavy, belongsToCluster, ui_state_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, stateFlagConstantCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, state_flag_heavy)
+      -> @graft.branch(state_flag_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(state_flag_heavy, belongsToCluster, ui_state_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, validationFlagConstantCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, validation_flag_heavy)
+      -> @graft.branch(validation_flag_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(validation_flag_heavy, belongsToCluster, boolean_logic_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Constant role / value-shape signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, renderDataProjectionConstantCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, render_data_projection)
+      -> @graft.branch(render_data_projection, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(render_data_projection, belongsToCluster, render_projection_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_render_data_projection_should_extract)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, entityAliasConstantCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, entity_alias_heavy)
+      -> @graft.branch(entity_alias_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(entity_alias_heavy, belongsToCluster, render_projection_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, collectionAliasConstantCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, collection_alias_heavy)
+      -> @graft.branch(collection_alias_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(collection_alias_heavy, belongsToCluster, render_projection_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, derivedValueConstantCount) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, derived_value_heavy)
+      -> @graft.branch(derived_value_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(derived_value_heavy, belongsToCluster, render_projection_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, booleanDerivedValueConstantCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, boolean_expression_constant_heavy)
+      -> @graft.branch(boolean_expression_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(boolean_expression_constant_heavy, belongsToCluster, boolean_logic_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, actionGuardConstantCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, action_guard_heavy)
+      -> @graft.branch(action_guard_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(action_guard_heavy, belongsToCluster, action_guard_cluster)
+      -> @graft.branch(action_guard_heavy, belongsToCluster, boolean_logic_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_action_guards_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, functionExpressionConstantCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, function_expression_constant_heavy)
+      -> @graft.branch(function_expression_constant_heavy, belongsToCluster, constant_profile_cluster)
+      -> @graft.branch(function_expression_constant_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_function_expressions_should_review)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, renderDataProjectionConstantCount) > 5) {
+    then: {
+      -> @if(@derive.state(file_analysis, actionGuardConstantCount) > 1) {
+        then: {
+          -> @graft.branch(file_analysis, hasSignal, view_model_pressure)
+          -> @graft.branch(view_model_pressure, belongsToCluster, constant_profile_cluster)
+          -> @graft.branch(view_model_pressure, belongsToCluster, view_model_cluster)
+          -> @graft.branch(view_model_pressure, belongsToCluster, render_projection_cluster)
+          -> @graft.branch(file_analysis, hasFinding, finding_view_model_pressure)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Import semantic profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, importCount) > 12) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, import_heavy)
+      -> @graft.branch(import_heavy, belongsToCluster, import_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, externalImportCount) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, external_import_heavy)
+      -> @graft.branch(external_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(external_import_heavy, belongsToCluster, dependency_coupling_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, localImportCount) > 8) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, local_import_heavy)
+      -> @graft.branch(local_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(local_import_heavy, belongsToCluster, dependency_coupling_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, deepRelativeImportCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, deep_relative_import_heavy)
+      -> @graft.branch(deep_relative_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(deep_relative_import_heavy, belongsToCluster, architecture_boundary_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, wideNamedImportCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, wide_named_import_heavy)
+      -> @graft.branch(wide_named_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(wide_named_import_heavy, belongsToCluster, dependency_coupling_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, import_responsibility_spread)
+      -> @graft.branch(import_responsibility_spread, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(import_responsibility_spread, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_import_responsibility_spread)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, uiImportsDataAccessDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, ui_imports_data_access)
+      -> @graft.branch(ui_imports_data_access, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(ui_imports_data_access, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(ui_imports_data_access, belongsToCluster, dependency_coupling_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_ui_imports_data_access)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, uiImportsDomainLogicDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, ui_imports_domain_logic)
+      -> @graft.branch(ui_imports_domain_logic, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(ui_imports_domain_logic, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_ui_imports_domain_logic)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, productionImportsTestSupportDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, production_imports_test_support)
+      -> @graft.branch(production_imports_test_support, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(production_imports_test_support, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_production_imports_test_support)
+    },
+  }
+
+  // -----------------------------
+  // Export semantic profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, exportCount) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, export_heavy)
+      -> @graft.branch(export_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(export_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, namedExportCount) > 8) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, named_export_heavy)
+      -> @graft.branch(named_export_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(named_export_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, defaultExportCount) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, default_export_present)
+      -> @graft.branch(default_export_present, belongsToCluster, export_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, reexportCount) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, reexport_heavy)
+      -> @graft.branch(reexport_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(reexport_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, starReexportCount) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, star_reexport_present)
+      -> @graft.branch(star_reexport_present, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(star_reexport_present, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, starReexportDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, star_reexport_present)
+      -> @graft.branch(star_reexport_present, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(star_reexport_present, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, barrelFileDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, barrel_file)
+      -> @graft.branch(barrel_file, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(barrel_file, belongsToCluster, public_api_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_barrel_file)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, exportCount) > 10) {
+    then: {
+      -> @if(@derive.state(file_analysis, namedExportCount) > 8) {
+        then: {
+          -> @graft.branch(file_analysis, hasSignal, public_api_pressure)
+          -> @graft.branch(public_api_pressure, belongsToCluster, export_profile_cluster)
+          -> @graft.branch(public_api_pressure, belongsToCluster, public_api_cluster)
+          -> @graft.branch(file_analysis, hasFinding, finding_public_api_pressure)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, exportResponsibilityRoleCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, export_responsibility_spread)
+      -> @graft.branch(export_responsibility_spread, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(export_responsibility_spread, belongsToCluster, public_api_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_export_responsibility_spread)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, mixedExportRolesDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, mixed_export_roles)
+      -> @graft.branch(mixed_export_roles, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(mixed_export_roles, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, utilityGrabBagDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, utility_grab_bag)
+      -> @graft.branch(utility_grab_bag, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(utility_grab_bag, belongsToCluster, public_api_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_utility_grab_bag)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, typeExportCount) > 6) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, type_export_heavy)
+      -> @graft.branch(type_export_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(type_export_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Complexity / repetition signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, repetitionScore) > 25) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, repetition_high)
+      -> @graft.branch(repetition_high, belongsToCluster, complexity_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_duplication_high)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 35) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, complexity_high)
+      -> @graft.branch(complexity_high, belongsToCluster, complexity_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_complexity_high)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, decisionKeywords) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, decision_heavy)
+      -> @graft.branch(decision_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, loopCount) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, loop_heavy)
+      -> @graft.branch(loop_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, booleanOperators) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, boolean_heavy)
+      -> @graft.branch(boolean_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, tryCatchBlocks) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, error_handling_heavy)
+      -> @graft.branch(error_handling_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Escalation signal
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 70) {
+    then: {
+      -> @graft.branch(file_analysis, hasRisk, risky_to_extend)
+      -> @graft.branch(file_analysis, hasFinding, finding_refactor_first)
+    },
+  }
+
+projection := graph <> @project.apply(graph, file_analysis)

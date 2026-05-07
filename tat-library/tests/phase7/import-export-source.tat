@@ -1,0 +1,12 @@
+node2 = <{ id: "node2", label: "Imported Node" }>
+
+graph2 := @seed {
+  nodes: [node2],
+  edges: [],
+  state: {},
+  meta: {},
+  root: node2,
+}
+
+export graph2
+export node2

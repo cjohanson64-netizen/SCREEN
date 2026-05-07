@@ -1,0 +1,2 @@
+export const LOOP_SAFETY_CAP = 1000;
+export const REACTIVE_TRIGGER_SAFETY_CAP = 1000;

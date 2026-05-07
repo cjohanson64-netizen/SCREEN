@@ -1,0 +1,337 @@
+file_analysis = <{}>
+
+long_file = <{}>
+token_heavy = <{}>
+function_heavy = <{}>
+hook_heavy = <{}>
+component_heavy = <{}>
+getter_heavy = <{}>
+setter_heavy = <{}>
+predicate_heavy = <{}>
+analyzer_heavy = <{}>
+handler_heavy = <{}>
+builder_heavy = <{}>
+transformer_heavy = <{}>
+io_heavy = <{}>
+orchestrator_heavy = <{}>
+
+block_heavy = <{}>
+deeply_nested = <{}>
+long_lines = <{}>
+repetition_high = <{}>
+complexity_high = <{}>
+decision_heavy = <{}>
+loop_heavy = <{}>
+boolean_heavy = <{}>
+error_handling_heavy = <{}>
+
+structure_cluster = <{}>
+complexity_cluster = <{}>
+function_profile_cluster = <{}>
+react_cluster = <{}>
+data_access_cluster = <{}>
+rule_logic_cluster = <{}>
+analysis_cluster = <{}>
+interaction_cluster = <{}>
+
+risky_to_extend = <{}>
+
+finding_file_too_large = <{}>
+finding_complexity_high = <{}>
+finding_duplication_high = <{}>
+finding_refactor_first = <{}>
+
+finding_hooks_should_move = <{}>
+finding_components_should_split = <{}>
+finding_getters_should_group = <{}>
+finding_predicates_should_group = <{}>
+finding_analyzers_should_group = <{}>
+finding_handlers_should_group = <{}>
+
+graph := @seed {
+  nodes: [
+    file_analysis,
+
+    long_file,
+    token_heavy,
+    function_heavy,
+    hook_heavy,
+    component_heavy,
+    getter_heavy,
+    setter_heavy,
+    predicate_heavy,
+    analyzer_heavy,
+    handler_heavy,
+    builder_heavy,
+    transformer_heavy,
+    io_heavy,
+    orchestrator_heavy,
+
+    block_heavy,
+    deeply_nested,
+    long_lines,
+    repetition_high,
+    complexity_high,
+    decision_heavy,
+    loop_heavy,
+    boolean_heavy,
+    error_handling_heavy,
+
+    structure_cluster,
+    complexity_cluster,
+    function_profile_cluster,
+    react_cluster,
+    data_access_cluster,
+    rule_logic_cluster,
+    analysis_cluster,
+    interaction_cluster,
+
+    risky_to_extend,
+
+    finding_file_too_large,
+    finding_complexity_high,
+    finding_duplication_high,
+    finding_refactor_first,
+
+    finding_hooks_should_move,
+    finding_components_should_split,
+    finding_getters_should_group,
+    finding_predicates_should_group,
+    finding_analyzers_should_group,
+    finding_handlers_should_group
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  
+  -> @graft.state(file_analysis, lineCount, 723)
+  -> @graft.state(file_analysis, tokenEstimate, 5741)
+  -> @graft.state(file_analysis, functionCount, 45)
+
+  -> @graft.state(file_analysis, hookFunctionCount, 0)
+  -> @graft.state(file_analysis, componentFunctionCount, 0)
+  -> @graft.state(file_analysis, getterFunctionCount, 0)
+  -> @graft.state(file_analysis, setterFunctionCount, 0)
+  -> @graft.state(file_analysis, predicateFunctionCount, 0)
+  -> @graft.state(file_analysis, analyzerFunctionCount, 0)
+  -> @graft.state(file_analysis, handlerFunctionCount, 0)
+  -> @graft.state(file_analysis, builderFunctionCount, 0)
+  -> @graft.state(file_analysis, transformerFunctionCount, 0)
+  -> @graft.state(file_analysis, ioFunctionCount, 0)
+  -> @graft.state(file_analysis, orchestratorFunctionCount, 0)
+
+  -> @graft.state(file_analysis, blockCount, 182)
+  -> @graft.state(file_analysis, maxNestingDepth, 5)
+  -> @graft.state(file_analysis, longLines, 17)
+  -> @graft.state(file_analysis, repetitionScore, 83)
+  -> @graft.state(file_analysis, complexityScore, 100)
+  -> @graft.state(file_analysis, decisionKeywords, 190)
+  -> @graft.state(file_analysis, loopCount, 19)
+  -> @graft.state(file_analysis, booleanOperators, 10)
+  -> @graft.state(file_analysis, tryCatchBlocks, 0)
+
+
+  // -----------------------------
+  // Size / structure signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, lineCount) > 300) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, long_file)
+      -> @graft.branch(long_file, belongsToCluster, structure_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_file_too_large)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, tokenEstimate) > 2500) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, token_heavy)
+      -> @graft.branch(token_heavy, belongsToCluster, structure_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, functionCount) > 12) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, function_heavy)
+      -> @graft.branch(function_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, blockCount) > 40) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, block_heavy)
+      -> @graft.branch(block_heavy, belongsToCluster, structure_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, maxNestingDepth) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, deeply_nested)
+      -> @graft.branch(deeply_nested, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, longLines) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, long_lines)
+      -> @graft.branch(long_lines, belongsToCluster, structure_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Semantic function profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, hookFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, hook_heavy)
+      -> @graft.branch(hook_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(hook_heavy, belongsToCluster, react_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_hooks_should_move)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, componentFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, component_heavy)
+      -> @graft.branch(component_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(component_heavy, belongsToCluster, react_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_components_should_split)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, getterFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, getter_heavy)
+      -> @graft.branch(getter_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(getter_heavy, belongsToCluster, data_access_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_getters_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, setterFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, setter_heavy)
+      -> @graft.branch(setter_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, predicateFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, predicate_heavy)
+      -> @graft.branch(predicate_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(predicate_heavy, belongsToCluster, rule_logic_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_predicates_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, analyzerFunctionCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, analyzer_heavy)
+      -> @graft.branch(analyzer_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(analyzer_heavy, belongsToCluster, analysis_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_analyzers_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, handlerFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, handler_heavy)
+      -> @graft.branch(handler_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(handler_heavy, belongsToCluster, interaction_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_handlers_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, builderFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, builder_heavy)
+      -> @graft.branch(builder_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, transformerFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, transformer_heavy)
+      -> @graft.branch(transformer_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, ioFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, io_heavy)
+      -> @graft.branch(io_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(io_heavy, belongsToCluster, data_access_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, orchestratorFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, orchestrator_heavy)
+      -> @graft.branch(orchestrator_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Complexity / repetition signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, repetitionScore) > 25) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, repetition_high)
+      -> @graft.branch(repetition_high, belongsToCluster, complexity_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_duplication_high)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 35) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, complexity_high)
+      -> @graft.branch(complexity_high, belongsToCluster, complexity_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_complexity_high)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, decisionKeywords) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, decision_heavy)
+      -> @graft.branch(decision_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, loopCount) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, loop_heavy)
+      -> @graft.branch(loop_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, booleanOperators) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, boolean_heavy)
+      -> @graft.branch(boolean_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, tryCatchBlocks) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, error_handling_heavy)
+      -> @graft.branch(error_handling_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  // -----------------------------
+  // Escalation signal
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 70) {
+    then: {
+      -> @graft.branch(file_analysis, hasRisk, risky_to_extend)
+      -> @graft.branch(file_analysis, hasFinding, finding_refactor_first)
+    },
+  }
+
+projection := graph <> @project.apply(graph, file_analysis)

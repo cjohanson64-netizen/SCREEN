@@ -1,0 +1,92 @@
+hero = <{ id: "hero", type: "character", name: "Hero", score: 10 }>
+mentor = <{ id: "mentor", type: "character", name: "Mentor", score: 5 }>
+lesson = <{ id: "lesson", type: "lesson", name: "Intervals", score: 20 }>
+quest = <{ id: "quest", type: "quest", name: "First Trial", score: 30 }>
+trainingHook = <{ id: "trainingHook", type: "hook", name: "Training Hook" }>
+archive = <{ id: "archive", type: "archive", name: "Old Archive" }>
+runtimeGenerated = <{ id: "runtimeGenerated", type: "runtime", name: "Runtime Generated" }>
+
+@project.define(HeroTrainingProjection, hero) {
+  contract: {
+    id: required,
+    label: optional,
+    status: optional,
+  },
+  fields: {
+    id: "node",
+    label: "name",
+    status: "state.status",
+  },
+}
+
+@action.define(studyAction) {
+  when: @query.state(hero, status, "ready"),
+  do: {
+    -> @graft.state(hero, status, "studying")
+    -> @graft.meta(hero, lastAction, "study")
+    -> @repeat(1) {
+      -> @graft.meta(hero, loopPractice, true)
+    }
+    -> @if(@query.edge(hero, studies, lesson)) {
+      then: {
+        -> @graft.state(hero, mastery, "improving")
+      },
+      else: {
+        -> @graft.state(hero, mastery, "needs-path")
+      },
+    }
+  },
+  project: hero,
+}
+
+trainingGraph := @seed {
+  nodes: [hero, mentor, lesson, quest, trainingHook, archive, runtimeGenerated],
+  edges: [
+    [mentor : guides : hero],
+    [quest : exposes : trainingHook],
+    [archive : obsolete : lesson],
+  ],
+  state: {},
+  meta: {},
+  root: hero,
+}
+  -> @graft.branch(hero, studies, lesson)
+  -> @graft.branch(hero, attempts, quest)
+  -> @graft.state(hero, status, "ready")
+  -> @graft.meta(hero, label, "Training Hero")
+  -> @when(@query.edge(hero, studies, lesson)) {
+    -> @graft.meta(hero, whenInPipeline, true)
+  }
+  -> @action.apply(studyAction)
+
+questGraph := @seed {
+  nodes: [hero, mentor, lesson, quest, trainingHook, archive],
+  edges: [
+    [mentor : guides : hero],
+    [quest : exposes : trainingHook],
+    [archive : obsolete : lesson],
+  ],
+  state: {},
+  meta: {},
+  root: hero,
+}
+  -> @graft.branch(quest, requires, lesson)
+
+@graph(questGraph) : @ctx(hero) :: @graph(trainingGraph) {
+  through: trainingHook,
+  condition: @query.state(hero, status, "studying"),
+} -> @effect {
+  -> @graft.meta(hero, bridgedToQuest, true)
+  -> @graft.state(hero, questStatus, "available")
+}
+
+@value.define(trainingValues) {
+  absoluteScore: @compute.abs(10),
+  hasStudyEdge: @query.edge(hero, studies, lesson),
+  readiness: @choose(@query.state(hero, status, "studying")) {
+    then: "ready",
+    else: "waiting",
+  },
+}
+
+projection := trainingGraph <> @project.apply(HeroTrainingProjection, hero)

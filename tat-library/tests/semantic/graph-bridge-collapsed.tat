@@ -1,0 +1,37 @@
+hero = <{ type: "character", class: "hero", name: "Hero" }>
+battleRoot = <{ type: "graphRoot", domain: "battle" }>
+characterRoot = <{ type: "graphRoot", domain: "character" }>
+battleParticipant = <{ type: "hook", domain: "battle", accepts: "character" }>
+
+characterGraph := @seed {
+  nodes: [hero, battleRoot, characterRoot, battleParticipant],
+  edges: [
+    [battleRoot : exposes : battleParticipant],
+    [characterRoot : owns : hero],
+  ],
+  state: {},
+  meta: {},
+  root: hero,
+}
+  -> @graft.state(hero, status, "ready")
+  -> @graft.meta(hero, graph, "character")
+
+battleGraph := @seed {
+  nodes: [hero, battleRoot, characterRoot, battleParticipant],
+  edges: [
+    [battleRoot : exposes : battleParticipant],
+    [characterRoot : owns : hero],
+  ],
+  state: {},
+  meta: {},
+  root: hero,
+}
+  -> @graft.meta(battleParticipant, hook, true)
+  -> @graft.meta(battleParticipant, accepts, "character")
+
+@graph(battleGraph) ::: @graph(characterGraph) {
+  through: battleParticipant,
+} -> @effect {
+  -> @graft.meta(hero, joinedBattleViaCollapsedBridge, true)
+  -> @graft.state(hero, battleStatus, "active")
+}

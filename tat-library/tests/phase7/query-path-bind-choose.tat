@@ -1,0 +1,30 @@
+hero = <{ id: "hero", label: "Hero" }>
+goblin = <{ id: "goblin", label: "Goblin" }>
+
+graph := @seed {
+  nodes: [hero, goblin],
+  edges: [],
+  state: {},
+  meta: {},
+  root: hero,
+}
+  -> @graft.branch(hero, faces, goblin)
+  -> @graft.state(hero, status, "active")
+
+edgeExists := @query.edge(hero, faces, goblin)
+stateMatches := @query.state(hero, status, "active")
+canReach := @path.has(hero, goblin) {
+  relation: faces,
+  direction: outgoing,
+  depth: 2,
+}
+
+@bind(readiness) {
+  @choose(stateMatches) {
+    then: "ready",
+    else: @choose(edgeExists) {
+      then: "engaged",
+      else: "idle",
+    },
+  }
+}

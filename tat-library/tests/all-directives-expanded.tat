@@ -1,0 +1,174 @@
+root = <{
+  name: "Root",
+  type: "thing",
+  score: 1,
+  flags: [
+    "fixture",
+  ],
+}>
+
+child = <{
+  name: "Child",
+  type: "thing",
+  score: 2,
+}>
+
+addedNode = <{}>
+
+
+g1 := @seed {
+  nodes: [root, child, addedNode],
+  edges: [[root : connectsTo : child]],
+  state: {},
+  meta: {},
+  root: root,
+}
+  -> @graft.branch(root, tempRelation, addedNode)
+
+g2 := @seed {
+  nodes: [root, child, addedNode],
+  edges: [[child : connectsBack : root]],
+  state: {},
+  meta: {},
+  root: root,
+}
+  -> @graft.branch(child, tempRelation, addedNode)
+
+@project.define(ExpandedProjection, root) {
+  contract: {
+    id: required,
+    label: optional,
+  },
+  fields: {
+    id: "node",
+    label: "name",
+  },
+}
+
+@action.define(attackAction) {
+  when: @query.state(root, status, "active"),
+  do: {
+    -> @graft.state(child, hp, @compute.abs(1))
+    -> @graft.meta(root, lastAction, "attack")
+  },
+  project: root,
+}
+
+@graph(g1) : @ctx(root) :: @graph(g2) {
+  through: addedNode,
+  condition: @query.state(root, status, "ready"),
+} -> @effect {
+  -> @graft.state(root, attached, true)
+  -> @graft.meta(root, through, "hook")
+  -> @prune.state(root, oldAttached)
+  -> @prune.meta(root, oldThrough)
+  -> @graft.state(root, computed, @compute.abs(1))
+  -> @graft.meta(root, computedMeta, @compute.abs(2))
+}
+
+@graph(g1) ::: @graph(g2) {
+  through: addedNode,
+} -> @effect {
+  -> @graft.meta(root, collapsedBridge, true)
+}
+
+@when(@query.edge(root, connectsTo, child)) {
+  -> @graft.branch(root, whenPassed, child)
+}
+
+@bind(bindAny) {
+  root
+}
+
+graph := @seed {
+  nodes: [root, child, addedNode],
+  edges: [[root : connectsTo : child]],
+  state: {},
+  meta: {},
+  root: root,
+}
+  -> @graft.state(root, status, "active")
+  -> @graft.meta(root, label, "Root Label")
+  -> @runtime.addNode(extraNode, { name: "Extra" }, { status: "new" }, { label: "Extra" })
+  -> @runtime.updateNodeValue(root, { name: "Updated Root" })
+  -> @runtime.deleteNode(extraNode)
+  -> @if(@query.state(root, status, "active")) {
+    then: {
+      -> @graft.state(root, ifStatus, "then")
+    },
+    else: {
+      -> @graft.state(root, ifStatus, "else")
+    },
+  }
+  -> @when(@query.edge(root, connectsTo, child)) {
+    -> @graft.meta(root, whenInPipeline, true)
+  }
+  -> @repeat(2) {
+    -> @action.apply(attackAction)
+  }
+  -> @action.apply(attackAction)
+
+composed := @compose {
+  from: [graph],
+  keep: {
+    nodes: [root, addedNode],
+    edges: [connectsTo],
+    state: [status],
+    meta: [label],
+  },
+  prune: {
+    nodes: [child],
+    edges: [oldRelation],
+    state: [oldState],
+    meta: [oldMeta],
+  },
+  merge: {
+    strategy: merge,
+    root: root,
+    namespace: preserve,
+  },
+}
+
+projected := graph <> @project.apply(ExpandedProjection, root)
+
+@query.edge(root, connectsTo, child)
+
+@match.edge(root, connectsTo, child)
+
+@path.has(root, child) {
+  relation: connectsTo,
+  direction: outgoing,
+  depth: 2,
+}
+
+@path.first(root, child) {
+  relation: connectsTo,
+  direction: outgoing,
+  depth: 2,
+}
+
+@path.count(root, child) {
+  relation: connectsTo,
+  direction: outgoing,
+  depth: 2,
+}
+
+@path.through(root, child) {
+  edges: [edgeOne],
+}
+
+@where(root == root)
+
+@why(@query.state(root, status, "active"))
+
+@value.define(values) {
+  deriveState: @derive.state(root, status),
+  deriveMeta: @derive.meta(root, label),
+  derivePath: @derive.path(root, connectsTo, outgoing, 2),
+  deriveAbs: @compute.abs(1),
+  whereValue: @where(root == root),
+  ifValue: @choose(root == root) {
+    then: "yes",
+    else: "no",
+  },
+}

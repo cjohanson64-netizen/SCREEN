@@ -1,0 +1,17 @@
+root = <{
+  name: "Root",
+}>
+
+child = <{
+  name: "Child",
+}>
+
+graph := @seed {
+  nodes: [root, child],
+  edges: [[root : connectsTo : child]],
+  state: {},
+  meta: {},
+  root: root,
+}
+
+projection := graph <> @project.apply(tree, root)
