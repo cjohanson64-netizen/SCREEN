@@ -1,0 +1,29 @@
+// prompt_constraint_rules.tat
+
+import {
+  prompt_chain,
+  behavior_preserving_constraint,
+  architecture_awareness_constraint,
+} from "./shared_prompt_chain_nodes.tat"
+
+promptConstraintGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    behavior_preserving_constraint,
+    architecture_awareness_constraint,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  // -----------------------------
+  // Constraints
+  // -----------------------------
+
+  -> @graft.branch(prompt_chain, requiresConstraint, behavior_preserving_constraint)
+  -> @graft.branch(prompt_chain, requiresConstraint, architecture_awareness_constraint)
+
+export promptConstraintGraph

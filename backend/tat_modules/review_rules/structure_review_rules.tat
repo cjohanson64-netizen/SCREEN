@@ -1,0 +1,83 @@
+// structure_review_rules.tat
+
+import {
+  file_analysis,
+  structure_cluster,
+  complexity_cluster,
+} from "./shared_review_nodes.tat"
+
+long_file = <{}>
+token_heavy = <{}>
+block_heavy = <{}>
+deeply_nested = <{}>
+long_lines = <{}>
+
+finding_file_too_large = <{}>
+
+structureReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    long_file,
+    token_heavy,
+    block_heavy,
+    deeply_nested,
+    long_lines,
+
+    finding_file_too_large,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Size / structure signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, lineCount) > 300) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, long_file)
+      -> @graft.branch(long_file, belongsToCluster, structure_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_file_too_large)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, tokenEstimate) > 2500) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, token_heavy)
+      -> @graft.branch(token_heavy, belongsToCluster, structure_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, blockCount) > 40) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, block_heavy)
+      -> @graft.branch(block_heavy, belongsToCluster, structure_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, maxNestingDepth) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, deeply_nested)
+      -> @graft.branch(deeply_nested, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, longLines) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, long_lines)
+      -> @graft.branch(long_lines, belongsToCluster, structure_cluster)
+    },
+  }
+
+export long_file
+export token_heavy
+export block_heavy
+export deeply_nested
+export long_lines
+
+export finding_file_too_large
+
+export structureReviewGraph

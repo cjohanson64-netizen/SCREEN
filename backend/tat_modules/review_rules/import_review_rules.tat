@@ -1,0 +1,191 @@
+// import_review_rules.tat
+
+import {
+  file_analysis,
+  import_profile_cluster,
+  architecture_boundary_cluster,
+  dependency_coupling_cluster,
+} from "./shared_review_nodes.tat"
+
+import_heavy = <{}>
+external_import_heavy = <{}>
+local_import_heavy = <{}>
+deep_relative_import_heavy = <{}>
+wide_named_import_heavy = <{}>
+import_responsibility_spread = <{}>
+ui_imports_data_access = <{}>
+ui_imports_domain_logic = <{}>
+production_imports_test_support = <{}>
+
+high_confidence_signal = <{}>
+medium_confidence_signal = <{}>
+low_confidence_signal = <{}>
+
+finding_import_responsibility_spread = <{}>
+finding_ui_imports_data_access = <{}>
+finding_ui_imports_domain_logic = <{}>
+finding_production_imports_test_support = <{}>
+
+importReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    import_heavy,
+    external_import_heavy,
+    local_import_heavy,
+    deep_relative_import_heavy,
+    wide_named_import_heavy,
+    import_responsibility_spread,
+    ui_imports_data_access,
+    ui_imports_domain_logic,
+    production_imports_test_support,
+
+    high_confidence_signal,
+    medium_confidence_signal,
+    low_confidence_signal,
+
+    finding_import_responsibility_spread,
+    finding_ui_imports_data_access,
+    finding_ui_imports_domain_logic,
+    finding_production_imports_test_support,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Import semantic profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, importCount) > 12) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, import_heavy)
+      -> @graft.branch(import_heavy, belongsToCluster, import_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, externalImportCount) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, external_import_heavy)
+      -> @graft.branch(external_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(external_import_heavy, belongsToCluster, dependency_coupling_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, localImportCount) > 8) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, local_import_heavy)
+      -> @graft.branch(local_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(local_import_heavy, belongsToCluster, dependency_coupling_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, deepRelativeImportCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, deep_relative_import_heavy)
+      -> @graft.branch(deep_relative_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(deep_relative_import_heavy, belongsToCluster, architecture_boundary_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, wideNamedImportCount) > 1) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, wide_named_import_heavy)
+      -> @graft.branch(wide_named_import_heavy, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(wide_named_import_heavy, belongsToCluster, dependency_coupling_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, import_responsibility_spread)
+      -> @graft.branch(import_responsibility_spread, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(import_responsibility_spread, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_import_responsibility_spread)
+    },
+  }
+
+  // -----------------------------
+  // Boundary crossing signals with confidence
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, uiImportsDataAccessDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, ui_imports_data_access)
+      -> @graft.branch(ui_imports_data_access, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(ui_imports_data_access, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(ui_imports_data_access, belongsToCluster, dependency_coupling_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_ui_imports_data_access)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, uiImportsDataAccessHighConfidence)) {
+    then: {
+      -> @graft.branch(ui_imports_data_access, hasSignalConfidence, high_confidence_signal)
+    },
+    else: {
+      -> @if(@derive.state(file_analysis, uiImportsDataAccessMediumConfidence)) {
+        then: {
+          -> @graft.branch(ui_imports_data_access, hasSignalConfidence, medium_confidence_signal)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, uiImportsDomainLogicDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, ui_imports_domain_logic)
+      -> @graft.branch(ui_imports_domain_logic, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(ui_imports_domain_logic, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_ui_imports_domain_logic)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, uiImportsDomainLogicHighConfidence)) {
+    then: {
+      -> @graft.branch(ui_imports_domain_logic, hasSignalConfidence, high_confidence_signal)
+    },
+    else: {
+      -> @if(@derive.state(file_analysis, uiImportsDomainLogicMediumConfidence)) {
+        then: {
+          -> @graft.branch(ui_imports_domain_logic, hasSignalConfidence, medium_confidence_signal)
+        },
+      }
+    },
+  }
+
+  // Production test-support imports are intentionally high-confidence only.
+  // Medium/low evidence remains Python evidence but does not become a scary finding.
+
+  -> @if(@derive.state(file_analysis, productionImportsTestSupportHighConfidence)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, production_imports_test_support)
+      -> @graft.branch(production_imports_test_support, belongsToCluster, import_profile_cluster)
+      -> @graft.branch(production_imports_test_support, belongsToCluster, architecture_boundary_cluster)
+      -> @graft.branch(production_imports_test_support, hasSignalConfidence, high_confidence_signal)
+      -> @graft.branch(file_analysis, hasFinding, finding_production_imports_test_support)
+    },
+  }
+
+export import_heavy
+export external_import_heavy
+export local_import_heavy
+export deep_relative_import_heavy
+export wide_named_import_heavy
+export import_responsibility_spread
+export ui_imports_data_access
+export ui_imports_domain_logic
+export production_imports_test_support
+
+export high_confidence_signal
+export medium_confidence_signal
+export low_confidence_signal
+
+export finding_import_responsibility_spread
+export finding_ui_imports_data_access
+export finding_ui_imports_domain_logic
+export finding_production_imports_test_support
+
+export importReviewGraph

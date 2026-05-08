@@ -1,0 +1,73 @@
+// general_prompt_target_rules.tat
+
+import {
+  prompt_chain,
+  discover_phase,
+  plan_phase,
+  transform_phase,
+  verify_phase,
+} from "./shared_prompt_chain_nodes.tat"
+
+pipeline_refactor = <{}>
+module_extraction = <{}>
+complexity_reduction = <{}>
+duplication_reduction = <{}>
+
+generalPromptTargetGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    pipeline_refactor,
+    module_extraction,
+    complexity_reduction,
+    duplication_reduction,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  // -----------------------------
+  // General prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_pipeline_refactor)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, pipeline_refactor)
+      -> @graft.branch(pipeline_refactor, shouldStartWith, discover_phase)
+      -> @graft.branch(pipeline_refactor, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_module_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, module_extraction)
+      -> @graft.branch(module_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(module_extraction, shouldPlanBefore, transform_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_complexity_reduction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, complexity_reduction)
+      -> @graft.branch(complexity_reduction, shouldStartWith, discover_phase)
+      -> @graft.branch(complexity_reduction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(complexity_reduction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_duplication_reduction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, duplication_reduction)
+      -> @graft.branch(duplication_reduction, shouldStartWith, discover_phase)
+      -> @graft.branch(duplication_reduction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+export pipeline_refactor
+export module_extraction
+export complexity_reduction
+export duplication_reduction
+
+export generalPromptTargetGraph

@@ -1,0 +1,84 @@
+// review_rule_composer.tat
+
+import {
+  file_analysis,
+  sharedReviewGraph,
+} from "./shared_review_nodes.tat"
+
+import {
+  fileContextReviewGraph,
+} from "./file_context_review_rules.tat"
+
+import {
+  refactorWorthinessReviewGraph,
+} from "./refactor_worthiness_review_rules.tat"
+
+import {
+  domainCohesionReviewGraph,
+} from "./domain_cohesion_review_rules.tat"
+
+import {
+  extractionOrderReviewGraph,
+} from "./extraction_order_review_rules.tat"
+
+import {
+  structureReviewGraph,
+} from "./structure_review_rules.tat"
+
+import {
+  functionReviewGraph,
+} from "./function_review_rules.tat"
+
+import {
+  constantReviewGraph,
+} from "./constant_review_rules.tat"
+
+import {
+  importReviewGraph,
+} from "./import_review_rules.tat"
+
+import {
+  exportReviewGraph,
+} from "./export_review_rules.tat"
+
+import {
+  complexityReviewGraph,
+} from "./complexity_review_rules.tat"
+
+import {
+  loopReviewGraph,
+} from "./loop_review_rules.tat"
+
+import {
+  riskReviewGraph,
+} from "./risk_review_rules.tat"
+
+reviewGraph := @compose {
+  from: [
+    sharedReviewGraph,
+    fileContextReviewGraph,
+    refactorWorthinessReviewGraph,
+    domainCohesionReviewGraph,
+    extractionOrderReviewGraph,
+    structureReviewGraph,
+    functionReviewGraph,
+    constantReviewGraph,
+    importReviewGraph,
+    exportReviewGraph,
+    complexityReviewGraph,
+    loopReviewGraph,
+    riskReviewGraph,
+  ],
+  merge: {
+    strategy: "merge",
+    root: file_analysis,
+    namespace: "preserve",
+  },
+}
+
+  <- @inject(python_review_state, ".py")
+
+projection := reviewGraph <> @project.apply(graph, file_analysis)
+
+export reviewGraph
+export projection

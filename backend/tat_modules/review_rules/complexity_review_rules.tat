@@ -1,0 +1,86 @@
+// complexity_review_rules.tat
+
+import {
+  file_analysis,
+  complexity_cluster,
+} from "./shared_review_nodes.tat"
+
+repetition_high = <{}>
+complexity_high = <{}>
+decision_heavy = <{}>
+boolean_heavy = <{}>
+error_handling_heavy = <{}>
+
+finding_complexity_high = <{}>
+finding_duplication_high = <{}>
+
+complexityReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    repetition_high,
+    complexity_high,
+    decision_heavy,
+    boolean_heavy,
+    error_handling_heavy,
+
+    finding_complexity_high,
+    finding_duplication_high,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Complexity / repetition signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, repetitionScore) > 25) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, repetition_high)
+      -> @graft.branch(repetition_high, belongsToCluster, complexity_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_duplication_high)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 35) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, complexity_high)
+      -> @graft.branch(complexity_high, belongsToCluster, complexity_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_complexity_high)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, decisionKeywords) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, decision_heavy)
+      -> @graft.branch(decision_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, booleanOperators) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, boolean_heavy)
+      -> @graft.branch(boolean_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, tryCatchBlocks) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, error_handling_heavy)
+      -> @graft.branch(error_handling_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+export repetition_high
+export complexity_high
+export decision_heavy
+export boolean_heavy
+export error_handling_heavy
+
+export finding_complexity_high
+export finding_duplication_high
+
+export complexityReviewGraph

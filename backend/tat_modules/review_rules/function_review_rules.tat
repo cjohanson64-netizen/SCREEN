@@ -1,0 +1,184 @@
+// function_review_rules.tat
+
+import {
+  file_analysis,
+  function_profile_cluster,
+  react_cluster,
+  data_access_cluster,
+  rule_logic_cluster,
+  analysis_cluster,
+  interaction_cluster,
+} from "./shared_review_nodes.tat"
+
+function_heavy = <{}>
+hook_heavy = <{}>
+component_heavy = <{}>
+getter_heavy = <{}>
+setter_heavy = <{}>
+predicate_heavy = <{}>
+analyzer_heavy = <{}>
+handler_heavy = <{}>
+builder_heavy = <{}>
+transformer_heavy = <{}>
+io_heavy = <{}>
+orchestrator_heavy = <{}>
+
+finding_hooks_should_move = <{}>
+finding_components_should_split = <{}>
+finding_getters_should_group = <{}>
+finding_predicates_should_group = <{}>
+finding_analyzers_should_group = <{}>
+finding_handlers_should_group = <{}>
+
+functionReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    function_heavy,
+    hook_heavy,
+    component_heavy,
+    getter_heavy,
+    setter_heavy,
+    predicate_heavy,
+    analyzer_heavy,
+    handler_heavy,
+    builder_heavy,
+    transformer_heavy,
+    io_heavy,
+    orchestrator_heavy,
+
+    finding_hooks_should_move,
+    finding_components_should_split,
+    finding_getters_should_group,
+    finding_predicates_should_group,
+    finding_analyzers_should_group,
+    finding_handlers_should_group,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Semantic function profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, functionCount) > 12) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, function_heavy)
+      -> @graft.branch(function_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, hookFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, hook_heavy)
+      -> @graft.branch(hook_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(hook_heavy, belongsToCluster, react_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_hooks_should_move)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, componentFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, component_heavy)
+      -> @graft.branch(component_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(component_heavy, belongsToCluster, react_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_components_should_split)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, getterFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, getter_heavy)
+      -> @graft.branch(getter_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(getter_heavy, belongsToCluster, data_access_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_getters_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, setterFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, setter_heavy)
+      -> @graft.branch(setter_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, predicateFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, predicate_heavy)
+      -> @graft.branch(predicate_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(predicate_heavy, belongsToCluster, rule_logic_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_predicates_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, analyzerFunctionCount) > 2) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, analyzer_heavy)
+      -> @graft.branch(analyzer_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(analyzer_heavy, belongsToCluster, analysis_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_analyzers_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, handlerFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, handler_heavy)
+      -> @graft.branch(handler_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(handler_heavy, belongsToCluster, interaction_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_handlers_should_group)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, builderFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, builder_heavy)
+      -> @graft.branch(builder_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, transformerFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, transformer_heavy)
+      -> @graft.branch(transformer_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, ioFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, io_heavy)
+      -> @graft.branch(io_heavy, belongsToCluster, function_profile_cluster)
+      -> @graft.branch(io_heavy, belongsToCluster, data_access_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, orchestratorFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, orchestrator_heavy)
+      -> @graft.branch(orchestrator_heavy, belongsToCluster, function_profile_cluster)
+    },
+  }
+
+export function_heavy
+export hook_heavy
+export component_heavy
+export getter_heavy
+export setter_heavy
+export predicate_heavy
+export analyzer_heavy
+export handler_heavy
+export builder_heavy
+export transformer_heavy
+export io_heavy
+export orchestrator_heavy
+
+export finding_hooks_should_move
+export finding_components_should_split
+export finding_getters_should_group
+export finding_predicates_should_group
+export finding_analyzers_should_group
+export finding_handlers_should_group
+
+export functionReviewGraph

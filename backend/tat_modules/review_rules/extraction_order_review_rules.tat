@@ -1,0 +1,251 @@
+// extraction_order_review_rules.tat
+
+import {
+  file_analysis,
+} from "./shared_review_nodes.tat"
+
+safe_first_move = <{}>
+render_only_component_first = <{}>
+display_view_model_helper_first = <{}>
+predicate_rule_cluster_first = <{}>
+workflow_hook_first = <{}>
+service_boundary_first = <{}>
+domain_module_first = <{}>
+public_api_grouping_first = <{}>
+defer_extraction_watch_first = <{}>
+
+lowest_behavior_risk = <{}>
+preserves_public_shell = <{}>
+keeps_rules_traceable = <{}>
+keeps_render_output_stable = <{}>
+reduces_cross_domain_touch_points = <{}>
+protects_public_api = <{}>
+
+extractionOrderReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    safe_first_move,
+    render_only_component_first,
+    display_view_model_helper_first,
+    predicate_rule_cluster_first,
+    workflow_hook_first,
+    service_boundary_first,
+    domain_module_first,
+    public_api_grouping_first,
+    defer_extraction_watch_first,
+
+    lowest_behavior_risk,
+    preserves_public_shell,
+    keeps_rules_traceable,
+    keeps_render_output_stable,
+    reduces_cross_domain_touch_points,
+    protects_public_api,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Watch / no immediate extraction
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, complexityScore) <= 35) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, defer_extraction_watch_first)
+      -> @graft.branch(defer_extraction_watch_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  // -----------------------------
+  // Page/component render-only first
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, pathHasPageFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, componentFunctionCount) > 2) {
+        then: {
+          -> @graft.branch(file_analysis, hasExtractionStep, render_only_component_first)
+          -> @graft.branch(render_only_component_first, hasExtractionReason, lowest_behavior_risk)
+          -> @graft.branch(render_only_component_first, hasExtractionReason, keeps_render_output_stable)
+          -> @graft.branch(render_only_component_first, hasExtractionReason, preserves_public_shell)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameEndsWithPage)) {
+    then: {
+      -> @if(@derive.state(file_analysis, componentFunctionCount) > 2) {
+        then: {
+          -> @graft.branch(file_analysis, hasExtractionStep, render_only_component_first)
+          -> @graft.branch(render_only_component_first, hasExtractionReason, lowest_behavior_risk)
+          -> @graft.branch(render_only_component_first, hasExtractionReason, keeps_render_output_stable)
+          -> @graft.branch(render_only_component_first, hasExtractionReason, preserves_public_shell)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Render projection / view-model first
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, renderDataProjectionConstantCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, display_view_model_helper_first)
+      -> @graft.branch(display_view_model_helper_first, hasExtractionReason, keeps_render_output_stable)
+      -> @graft.branch(display_view_model_helper_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, derivedValueConstantCount) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, display_view_model_helper_first)
+      -> @graft.branch(display_view_model_helper_first, hasExtractionReason, keeps_render_output_stable)
+      -> @graft.branch(display_view_model_helper_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  // -----------------------------
+  // Rule / predicate cluster first
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, predicateFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, predicate_rule_cluster_first)
+      -> @graft.branch(predicate_rule_cluster_first, hasExtractionReason, keeps_rules_traceable)
+      -> @graft.branch(predicate_rule_cluster_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, booleanConstantCount) > 7) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, predicate_rule_cluster_first)
+      -> @graft.branch(predicate_rule_cluster_first, hasExtractionReason, keeps_rules_traceable)
+      -> @graft.branch(predicate_rule_cluster_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, decisionRuleConstantCount) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, predicate_rule_cluster_first)
+      -> @graft.branch(predicate_rule_cluster_first, hasExtractionReason, keeps_rules_traceable)
+      -> @graft.branch(predicate_rule_cluster_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  // -----------------------------
+  // Workflow hook first
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, handlerFunctionCount) > 5) {
+    then: {
+      -> @if(@derive.state(file_analysis, pathHasComponentFolder)) {
+        then: {
+          -> @graft.branch(file_analysis, hasExtractionStep, workflow_hook_first)
+          -> @graft.branch(workflow_hook_first, hasExtractionReason, preserves_public_shell)
+          -> @graft.branch(workflow_hook_first, hasExtractionReason, reduces_cross_domain_touch_points)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, handlerFunctionCount) > 5) {
+    then: {
+      -> @if(@derive.state(file_analysis, pathHasPageFolder)) {
+        then: {
+          -> @graft.branch(file_analysis, hasExtractionStep, workflow_hook_first)
+          -> @graft.branch(workflow_hook_first, hasExtractionReason, preserves_public_shell)
+          -> @graft.branch(workflow_hook_first, hasExtractionReason, reduces_cross_domain_touch_points)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Service/data boundary first
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, uiImportsDataAccessDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, service_boundary_first)
+      -> @graft.branch(service_boundary_first, hasExtractionReason, reduces_cross_domain_touch_points)
+      -> @graft.branch(service_boundary_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, ioFunctionCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, service_boundary_first)
+      -> @graft.branch(service_boundary_first, hasExtractionReason, reduces_cross_domain_touch_points)
+      -> @graft.branch(service_boundary_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  // -----------------------------
+  // Domain module first
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 5) {
+    then: {
+      -> @if(@derive.state(file_analysis, localImportCount) > 8) {
+        then: {
+          -> @graft.branch(file_analysis, hasExtractionStep, domain_module_first)
+          -> @graft.branch(domain_module_first, hasExtractionReason, reduces_cross_domain_touch_points)
+          -> @graft.branch(domain_module_first, hasExtractionReason, preserves_public_shell)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Public API grouping first
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, exportResponsibilityRoleCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, public_api_grouping_first)
+      -> @graft.branch(public_api_grouping_first, hasExtractionReason, protects_public_api)
+      -> @graft.branch(public_api_grouping_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, utilityGrabBagDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionStep, public_api_grouping_first)
+      -> @graft.branch(public_api_grouping_first, hasExtractionReason, protects_public_api)
+      -> @graft.branch(public_api_grouping_first, hasExtractionReason, lowest_behavior_risk)
+    },
+  }
+
+  // -----------------------------
+  // Mark the selected extraction plan
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 35) {
+    then: {
+      -> @graft.branch(file_analysis, hasExtractionPlan, safe_first_move)
+    },
+  }
+
+export safe_first_move
+export render_only_component_first
+export display_view_model_helper_first
+export predicate_rule_cluster_first
+export workflow_hook_first
+export service_boundary_first
+export domain_module_first
+export public_api_grouping_first
+export defer_extraction_watch_first
+
+export lowest_behavior_risk
+export preserves_public_shell
+export keeps_rules_traceable
+export keeps_render_output_stable
+export reduces_cross_domain_touch_points
+export protects_public_api
+
+export extractionOrderReviewGraph

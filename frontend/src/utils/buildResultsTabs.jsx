@@ -15,6 +15,7 @@ export function buildResultsTabs({
   selectedProjectFile,
   highlightedLines,
   onHighlightLines,
+  analysisScopes = ["full"],
 }) {
   const findings = result?.tatReview?.findings ?? [];
   const repetition = result?.metrics?.repetition ?? {};
@@ -26,7 +27,12 @@ export function buildResultsTabs({
     {
       id: "metrics",
       label: "Metrics",
-      content: <MetricCards metrics={result.metrics} />,
+      content: (
+        <MetricCards
+          metrics={result.metrics}
+          analysisScopes={analysisScopes}
+        />
+      ),
     },
     {
       id: "findings",
@@ -76,6 +82,7 @@ export function buildResultsTabs({
           findings={findings}
           repetition={repetition}
           selectedProjectFile={selectedProjectFile}
+          tatReview={result.tatReview}
         />
       ),
     },

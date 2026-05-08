@@ -1,0 +1,43 @@
+// prompt_phase_rules.tat
+
+import {
+  prompt_chain,
+  discover_phase,
+  plan_phase,
+  transform_phase,
+  verify_phase,
+  document_phase,
+} from "./shared_prompt_chain_nodes.tat"
+
+promptPhaseGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    discover_phase,
+    plan_phase,
+    transform_phase,
+    verify_phase,
+    document_phase,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  // -----------------------------
+  // Base chain
+  // -----------------------------
+
+  -> @graft.branch(prompt_chain, includesPhase, discover_phase)
+  -> @graft.branch(prompt_chain, includesPhase, plan_phase)
+  -> @graft.branch(prompt_chain, includesPhase, transform_phase)
+  -> @graft.branch(prompt_chain, includesPhase, verify_phase)
+  -> @graft.branch(prompt_chain, includesPhase, document_phase)
+
+  -> @graft.branch(discover_phase, comesBefore, plan_phase)
+  -> @graft.branch(plan_phase, comesBefore, transform_phase)
+  -> @graft.branch(transform_phase, comesBefore, verify_phase)
+  -> @graft.branch(verify_phase, comesBefore, document_phase)
+
+export promptPhaseGraph

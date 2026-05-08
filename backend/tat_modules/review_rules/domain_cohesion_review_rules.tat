@@ -1,0 +1,277 @@
+// domain_cohesion_review_rules.tat
+
+import {
+  file_analysis,
+} from "./shared_review_nodes.tat"
+
+domain_cohesive = <{}>
+domain_mixed = <{}>
+domain_ambiguous = <{}>
+
+cohesive_rule_domain = <{}>
+cohesive_utility_domain = <{}>
+cohesive_service_domain = <{}>
+cohesive_component_domain = <{}>
+page_multi_domain_coordinator = <{}>
+app_multi_domain_coordinator = <{}>
+import_domain_spread = <{}>
+workflow_domain_spread = <{}>
+render_and_behavior_mixed = <{}>
+data_and_ui_mixed = <{}>
+
+watch_cohesive_complexity = <{}>
+targeted_rule_cluster_extraction = <{}>
+domain_specific_extraction = <{}>
+preserve_public_composition_shell = <{}>
+
+ui_rendering_domain = <{}>
+state_behavior_domain = <{}>
+domain_logic_domain = <{}>
+data_access_domain = <{}>
+configuration_domain = <{}>
+public_api_domain = <{}>
+test_support_domain = <{}>
+
+domainCohesionReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    domain_cohesive,
+    domain_mixed,
+    domain_ambiguous,
+
+    cohesive_rule_domain,
+    cohesive_utility_domain,
+    cohesive_service_domain,
+    cohesive_component_domain,
+    page_multi_domain_coordinator,
+    app_multi_domain_coordinator,
+    import_domain_spread,
+    workflow_domain_spread,
+    render_and_behavior_mixed,
+    data_and_ui_mixed,
+
+    watch_cohesive_complexity,
+    targeted_rule_cluster_extraction,
+    domain_specific_extraction,
+    preserve_public_composition_shell,
+
+    ui_rendering_domain,
+    state_behavior_domain,
+    domain_logic_domain,
+    data_access_domain,
+    configuration_domain,
+    public_api_domain,
+    test_support_domain,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Active responsibility domains
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, uiRenderingDomainEvidence) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasActiveDomain, ui_rendering_domain)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, stateBehaviorDomainEvidence) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasActiveDomain, state_behavior_domain)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, domainLogicDomainEvidence) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasActiveDomain, domain_logic_domain)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, dataAccessDomainEvidence) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasActiveDomain, data_access_domain)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, configurationDomainEvidence) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasActiveDomain, configuration_domain)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, publicApiDomainEvidence) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasActiveDomain, public_api_domain)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, testSupportDomainEvidence) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasActiveDomain, test_support_domain)
+    },
+  }
+
+  // -----------------------------
+  // Cohesive domain complexity
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, domainCohesionLikely)) {
+    then: {
+      -> @graft.branch(file_analysis, hasDomainCohesion, domain_cohesive)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasDomainFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, domainCohesionLikely)) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainSignal, cohesive_rule_domain)
+          -> @graft.branch(cohesive_rule_domain, hasCohesionReason, domain_cohesive)
+          -> @graft.branch(file_analysis, hasDomainRecommendation, watch_cohesive_complexity)
+          -> @graft.branch(file_analysis, hasDomainRecommendation, targeted_rule_cluster_extraction)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasUtilityFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, domainCohesionLikely)) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainSignal, cohesive_utility_domain)
+          -> @graft.branch(cohesive_utility_domain, hasCohesionReason, domain_cohesive)
+          -> @graft.branch(file_analysis, hasDomainRecommendation, watch_cohesive_complexity)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasServiceFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, dataAccessDomainEvidence) > 0) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainSignal, cohesive_service_domain)
+          -> @graft.branch(cohesive_service_domain, hasCohesionReason, domain_cohesive)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasComponentFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, activeResponsibilityDomainCount) <= 2) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainSignal, cohesive_component_domain)
+          -> @graft.branch(cohesive_component_domain, hasCohesionReason, domain_cohesive)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Multi-domain responsibility mixing
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, multiDomainMixingLikely)) {
+    then: {
+      -> @graft.branch(file_analysis, hasDomainCohesion, domain_mixed)
+      -> @graft.branch(file_analysis, hasDomainSignal, import_domain_spread)
+      -> @graft.branch(import_domain_spread, hasCohesionReason, domain_mixed)
+      -> @graft.branch(file_analysis, hasDomainRecommendation, domain_specific_extraction)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasPageFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, activeResponsibilityDomainCount) > 3) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainCohesion, domain_mixed)
+          -> @graft.branch(file_analysis, hasDomainSignal, page_multi_domain_coordinator)
+          -> @graft.branch(page_multi_domain_coordinator, hasCohesionReason, workflow_domain_spread)
+          -> @graft.branch(file_analysis, hasDomainRecommendation, preserve_public_composition_shell)
+          -> @graft.branch(file_analysis, hasDomainRecommendation, domain_specific_extraction)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasAppFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, activeResponsibilityDomainCount) > 4) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainCohesion, domain_mixed)
+          -> @graft.branch(file_analysis, hasDomainSignal, app_multi_domain_coordinator)
+          -> @graft.branch(app_multi_domain_coordinator, hasCohesionReason, workflow_domain_spread)
+          -> @graft.branch(file_analysis, hasDomainRecommendation, preserve_public_composition_shell)
+          -> @graft.branch(file_analysis, hasDomainRecommendation, domain_specific_extraction)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, uiRenderingDomainEvidence) > 0) {
+    then: {
+      -> @if(@derive.state(file_analysis, stateBehaviorDomainEvidence) > 4) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainSignal, render_and_behavior_mixed)
+          -> @graft.branch(render_and_behavior_mixed, hasCohesionReason, workflow_domain_spread)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, uiRenderingDomainEvidence) > 0) {
+    then: {
+      -> @if(@derive.state(file_analysis, dataAccessDomainEvidence) > 0) {
+        then: {
+          -> @graft.branch(file_analysis, hasDomainSignal, data_and_ui_mixed)
+          -> @graft.branch(data_and_ui_mixed, hasCohesionReason, domain_mixed)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Ambiguous fallback
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, activeResponsibilityDomainCount) == 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasDomainCohesion, domain_ambiguous)
+    },
+  }
+
+export domain_cohesive
+export domain_mixed
+export domain_ambiguous
+
+export cohesive_rule_domain
+export cohesive_utility_domain
+export cohesive_service_domain
+export cohesive_component_domain
+export page_multi_domain_coordinator
+export app_multi_domain_coordinator
+export import_domain_spread
+export workflow_domain_spread
+export render_and_behavior_mixed
+export data_and_ui_mixed
+
+export watch_cohesive_complexity
+export targeted_rule_cluster_extraction
+export domain_specific_extraction
+export preserve_public_composition_shell
+
+export ui_rendering_domain
+export state_behavior_domain
+export domain_logic_domain
+export data_access_domain
+export configuration_domain
+export public_api_domain
+export test_support_domain
+
+export domainCohesionReviewGraph

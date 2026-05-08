@@ -143,11 +143,13 @@ function getImportExportAdvice(importProfile = {}, exportProfile = {}) {
 export default function ImportExportProfilePanel({
   importProfile = {},
   exportProfile = {},
+  showImports = true,
+  showExports = true,
 }) {
   const [isOpen, setIsOpen] = useState(true);
 
-  const hasImportProfile = importProfile && Object.keys(importProfile).length > 0;
-  const hasExportProfile = exportProfile && Object.keys(exportProfile).length > 0;
+  const hasImportProfile = showImports && importProfile && Object.keys(importProfile).length > 0;
+  const hasExportProfile = showExports && exportProfile && Object.keys(exportProfile).length > 0;
 
   if (!hasImportProfile && !hasExportProfile) {
     return (
@@ -160,7 +162,9 @@ export default function ImportExportProfilePanel({
     );
   }
 
-  const advice = getImportExportAdvice(importProfile, exportProfile);
+  const visibleImportProfile = showImports ? importProfile : {};
+  const visibleExportProfile = showExports ? exportProfile : {};
+  const advice = getImportExportAdvice(visibleImportProfile, visibleExportProfile);
 
   return (
     <section className="import-export-profile-panel">
@@ -179,8 +183,9 @@ export default function ImportExportProfilePanel({
 
         <div className="profile-header-actions">
           <span className="import-export-profile-badge">
-            {importProfile.responsibilityCategoryCount ?? 0} import zones ·{" "}
-            {exportProfile.responsibilityRoleCount ?? 0} export roles
+            {showImports ? `${importProfile.responsibilityCategoryCount ?? 0} import zones` : ""}
+            {showImports && showExports ? " · " : ""}
+            {showExports ? `${exportProfile.responsibilityRoleCount ?? 0} export roles` : ""}
           </span>
           <span className="profile-collapse-icon" aria-hidden="true">
             {isOpen ? "−" : "+"}
@@ -191,80 +196,96 @@ export default function ImportExportProfilePanel({
       {isOpen && (
         <>
           <div className="import-export-profile-grid">
-            <div className="import-export-profile-stat">
-              <span>Imports</span>
-              <strong>{importProfile.total ?? 0}</strong>
-            </div>
+            {showImports ? (
+              <>
+                <div className="import-export-profile-stat">
+                  <span>Imports</span>
+                  <strong>{importProfile.total ?? 0}</strong>
+                </div>
 
-            <div className="import-export-profile-stat">
-              <span>Local imports</span>
-              <strong>{importProfile.localCount ?? 0}</strong>
-            </div>
+                <div className="import-export-profile-stat">
+                  <span>Local imports</span>
+                  <strong>{importProfile.localCount ?? 0}</strong>
+                </div>
 
-            <div className="import-export-profile-stat">
-              <span>External imports</span>
-              <strong>{importProfile.externalCount ?? 0}</strong>
-            </div>
+                <div className="import-export-profile-stat">
+                  <span>External imports</span>
+                  <strong>{importProfile.externalCount ?? 0}</strong>
+                </div>
 
-            <div className="import-export-profile-stat">
-              <span>Import zones</span>
-              <strong>{importProfile.responsibilityCategoryCount ?? 0}</strong>
-            </div>
+                <div className="import-export-profile-stat">
+                  <span>Import zones</span>
+                  <strong>{importProfile.responsibilityCategoryCount ?? 0}</strong>
+                </div>
+              </>
+            ) : null}
 
-            <div className="import-export-profile-stat">
-              <span>Exports</span>
-              <strong>{exportProfile.total ?? 0}</strong>
-            </div>
+            {showExports ? (
+              <>
+                <div className="import-export-profile-stat">
+                  <span>Exports</span>
+                  <strong>{exportProfile.total ?? 0}</strong>
+                </div>
 
-            <div className="import-export-profile-stat">
-              <span>Export roles</span>
-              <strong>{exportProfile.responsibilityRoleCount ?? 0}</strong>
-            </div>
+                <div className="import-export-profile-stat">
+                  <span>Export roles</span>
+                  <strong>{exportProfile.responsibilityRoleCount ?? 0}</strong>
+                </div>
+              </>
+            ) : null}
           </div>
 
           <div className="import-export-profile-detail-grid">
-            <div className="import-export-profile-detail-card">
-              <h4>Top import categories</h4>
-              <p>{formatTopCounts(importProfile.topCategories)}</p>
-            </div>
+            {showImports ? (
+              <>
+                <div className="import-export-profile-detail-card">
+                  <h4>Top import categories</h4>
+                  <p>{formatTopCounts(importProfile.topCategories)}</p>
+                </div>
 
-            <div className="import-export-profile-detail-card">
-              <h4>Top imported folders</h4>
-              <p>{formatTopCounts(importProfile.topFolders)}</p>
-            </div>
+                <div className="import-export-profile-detail-card">
+                  <h4>Top imported folders</h4>
+                  <p>{formatTopCounts(importProfile.topFolders)}</p>
+                </div>
 
-            <div className="import-export-profile-detail-card">
-              <h4>Top export kinds</h4>
-              <p>{formatTopCounts(exportProfile.topKinds)}</p>
-            </div>
+                <div className="import-export-profile-detail-card">
+                  <h4>Import shape</h4>
+                  <ul className="compact-list">
+                    <li>Relative: {importProfile.relativeCount ?? 0}</li>
+                    <li>Deep relative: {importProfile.deepRelativeCount ?? 0}</li>
+                    <li>Internal alias: {importProfile.internalAliasCount ?? 0}</li>
+                    <li>Wide named: {importProfile.wideNamedImportCount ?? 0}</li>
+                    <li>Side effect: {importProfile.sideEffectCount ?? 0}</li>
+                  </ul>
+                </div>
+              </>
+            ) : null}
 
-            <div className="import-export-profile-detail-card">
-              <h4>Top export roles</h4>
-              <p>{formatTopCounts(exportProfile.topRoles)}</p>
-            </div>
+            {showExports ? (
+              <>
+                <div className="import-export-profile-detail-card">
+                  <h4>Top export kinds</h4>
+                  <p>{formatTopCounts(exportProfile.topKinds)}</p>
+                </div>
 
-            <div className="import-export-profile-detail-card">
-              <h4>Import shape</h4>
-              <ul className="compact-list">
-                <li>Relative: {importProfile.relativeCount ?? 0}</li>
-                <li>Deep relative: {importProfile.deepRelativeCount ?? 0}</li>
-                <li>Internal alias: {importProfile.internalAliasCount ?? 0}</li>
-                <li>Wide named: {importProfile.wideNamedImportCount ?? 0}</li>
-                <li>Side effect: {importProfile.sideEffectCount ?? 0}</li>
-              </ul>
-            </div>
+                <div className="import-export-profile-detail-card">
+                  <h4>Top export roles</h4>
+                  <p>{formatTopCounts(exportProfile.topRoles)}</p>
+                </div>
 
-            <div className="import-export-profile-detail-card">
-              <h4>Export shape</h4>
-              <ul className="compact-list">
-                <li>Named: {exportProfile.namedCount ?? 0}</li>
-                <li>Default: {exportProfile.defaultCount ?? 0}</li>
-                <li>Functions: {exportProfile.functionExportCount ?? 0}</li>
-                <li>Types: {exportProfile.typeExportCount ?? 0}</li>
-                <li>Re-exports: {exportProfile.reexportCount ?? 0}</li>
-                <li>Star re-exports: {exportProfile.starReexportCount ?? 0}</li>
-              </ul>
-            </div>
+                <div className="import-export-profile-detail-card">
+                  <h4>Export shape</h4>
+                  <ul className="compact-list">
+                    <li>Named: {exportProfile.namedCount ?? 0}</li>
+                    <li>Default: {exportProfile.defaultCount ?? 0}</li>
+                    <li>Functions: {exportProfile.functionExportCount ?? 0}</li>
+                    <li>Types: {exportProfile.typeExportCount ?? 0}</li>
+                    <li>Re-exports: {exportProfile.reexportCount ?? 0}</li>
+                    <li>Star re-exports: {exportProfile.starReexportCount ?? 0}</li>
+                  </ul>
+                </div>
+              </>
+            ) : null}
           </div>
 
           {advice.length > 0 && (
@@ -281,12 +302,16 @@ export default function ImportExportProfilePanel({
           )}
 
           <div className="import-export-signal-lists">
-            <SignalList title="Import signals" signals={importProfile.signals} />
-            <SignalList title="Export signals" signals={exportProfile.signals} />
+            {showImports ? (
+              <SignalList title="Import signals" signals={importProfile.signals} />
+            ) : null}
+            {showExports ? (
+              <SignalList title="Export signals" signals={exportProfile.signals} />
+            ) : null}
           </div>
 
-          <ImportSampleTable imports={importProfile.imports} />
-          <ExportSampleTable exports={exportProfile.exports} />
+          {showImports ? <ImportSampleTable imports={importProfile.imports} /> : null}
+          {showExports ? <ExportSampleTable exports={exportProfile.exports} /> : null}
         </>
       )}
     </section>

@@ -22,38 +22,45 @@ Output:
   complexity_high: `
 You are a senior software engineer.
 
-This code has high complexity due to heavy branching and decision logic.
+This code has high complexity due to branching and decision logic.
 
 Task:
-- Simplify the decision structure
-- Extract complex logic into named helper functions
+- First decide whether the complexity is cohesive rule complexity or mixed responsibility drift
+- Extract only the clearest rule cluster, predicate group, or strategy helper
+- Avoid broad module splitting unless unrelated domains are clearly mixed
 
 Constraints:
 - Do not change behavior
 - Preserve all conditions and thresholds
+- Do not refactor merely because the file is signal-heavy
 
 Output:
-- Refactored code
-- Explanation of simplifications
+- Refactor-worthiness diagnosis
+- Smallest safe extraction target
+- Updated code only if the boundary is clear
+- Explanation of preserved behavior
 `,
 
   long_file: `
 You are a senior software engineer.
 
-This file is too large and likely contains multiple responsibilities.
+This file is large, but size alone is not proof that it should be split.
 
 Task:
-- Break this file into smaller modules
-- Separate concerns such as UI, logic, utilities, hooks, and services
+- Determine whether this is healthy orchestration density, cohesive rule complexity, or true multi-domain responsibility mixing
+- If it is cohesive/readable, recommend watch or a small cleanup only
+- If it is mixed, split by named domain responsibility, not arbitrary helper size
 
 Constraints:
 - Do not change behavior
 - Preserve public interfaces
+- Preserve the public composition/orchestration entry point when applicable
 
 Output:
-- Proposed file structure
-- Extracted modules
-- Updated imports
+- Refactor-worthiness diagnosis
+- Named responsibility boundaries
+- Safest first extraction target
+- Updated imports only if extraction is justified
 `,
 
   repetition_high: `
@@ -193,6 +200,7 @@ Output:
 - Updated code
 - Explanation of interaction boundaries
 `,
+
   boolean_constant_heavy: `
 You are a senior software engineer.
 
@@ -292,6 +300,7 @@ Output:
 - Updated code
 - Explanation of unchanged rendering behavior
 `,
+
   render_data_projection: `
 You are a senior frontend engineer.
 
@@ -374,6 +383,7 @@ Output:
 - Suggested grouping
 - Updated code only if safe
 `,
+
   import_responsibility_spread: `
 You are a senior software engineer.
 
@@ -509,10 +519,13 @@ export function buildMiniPrompt(signal, { code }) {
 You are a senior software engineer.
 
 Task:
-- Analyze and improve the following code related to: ${formatReviewLabel(signal)}
+- Analyze the following code related to: ${formatReviewLabel(signal)}
+- Decide whether this signal is a real refactor trigger or only a watch item
+- Recommend the smallest safe architectural move
 
 Constraints:
 - Preserve behavior
+- Do not overengineer or split files without a clear responsibility boundary
 
 Code:
 ${code}

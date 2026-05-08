@@ -1,0 +1,99 @@
+// import_export_prompt_target_rules.tat
+
+import {
+  prompt_chain,
+  discover_phase,
+  plan_phase,
+  transform_phase,
+  verify_phase,
+} from "./shared_prompt_chain_nodes.tat"
+
+import_boundary_review = <{}>
+ui_data_boundary_review = <{}>
+production_dependency_review = <{}>
+export_surface_review = <{}>
+utility_grab_bag_refactor = <{}>
+barrel_api_review = <{}>
+
+importExportPromptTargetGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    import_boundary_review,
+    ui_data_boundary_review,
+    production_dependency_review,
+    export_surface_review,
+    utility_grab_bag_refactor,
+    barrel_api_review,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  // -----------------------------
+  // Import/export prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_import_boundary_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, import_boundary_review)
+      -> @graft.branch(import_boundary_review, shouldStartWith, discover_phase)
+      -> @graft.branch(import_boundary_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(import_boundary_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_ui_data_boundary_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, ui_data_boundary_review)
+      -> @graft.branch(ui_data_boundary_review, shouldStartWith, discover_phase)
+      -> @graft.branch(ui_data_boundary_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(ui_data_boundary_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_production_dependency_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, production_dependency_review)
+      -> @graft.branch(production_dependency_review, shouldStartWith, discover_phase)
+      -> @graft.branch(production_dependency_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(production_dependency_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_export_surface_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, export_surface_review)
+      -> @graft.branch(export_surface_review, shouldStartWith, discover_phase)
+      -> @graft.branch(export_surface_review, shouldPlanBefore, transform_phase)
+      -> @graft.branch(export_surface_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_utility_grab_bag_refactor)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, utility_grab_bag_refactor)
+      -> @graft.branch(utility_grab_bag_refactor, shouldStartWith, discover_phase)
+      -> @graft.branch(utility_grab_bag_refactor, shouldPlanBefore, transform_phase)
+      -> @graft.branch(utility_grab_bag_refactor, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_barrel_api_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, barrel_api_review)
+      -> @graft.branch(barrel_api_review, shouldStartWith, discover_phase)
+      -> @graft.branch(barrel_api_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+export import_boundary_review
+export ui_data_boundary_review
+export production_dependency_review
+export export_surface_review
+export utility_grab_bag_refactor
+export barrel_api_review
+
+export importExportPromptTargetGraph

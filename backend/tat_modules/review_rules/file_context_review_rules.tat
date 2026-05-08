@@ -1,0 +1,276 @@
+// file_context_review_rules.tat
+
+import {
+  file_analysis,
+} from "./shared_review_nodes.tat"
+
+app_root = <{}>
+page_shell = <{}>
+component_file = <{}>
+modal_component = <{}>
+hook_file = <{}>
+service_file = <{}>
+domain_core_file = <{}>
+utility_file = <{}>
+feature_module_file = <{}>
+state_module_file = <{}>
+test_support_file = <{}>
+style_asset_file = <{}>
+configuration_file = <{}>
+unknown_file_role = <{}>
+
+broad_imports_expected = <{}>
+handlers_expected = <{}>
+jsx_expected = <{}>
+stateful_logic_expected = <{}>
+async_io_expected = <{}>
+domain_rules_expected = <{}>
+test_imports_expected = <{}>
+low_ui_import_tolerance = <{}>
+low_data_access_tolerance = <{}>
+low_domain_logic_tolerance = <{}>
+
+fileContextReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    app_root,
+    page_shell,
+    component_file,
+    modal_component,
+    hook_file,
+    service_file,
+    domain_core_file,
+    utility_file,
+    feature_module_file,
+    state_module_file,
+    test_support_file,
+    style_asset_file,
+    configuration_file,
+    unknown_file_role,
+
+    broad_imports_expected,
+    handlers_expected,
+    jsx_expected,
+    stateful_logic_expected,
+    async_io_expected,
+    domain_rules_expected,
+    test_imports_expected,
+    low_ui_import_tolerance,
+    low_data_access_tolerance,
+    low_domain_logic_tolerance,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // File path / role context
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, pathHasAppFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, app_root)
+      -> @graft.branch(app_root, expects, broad_imports_expected)
+      -> @graft.branch(app_root, expects, handlers_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameIsAppRoot)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, app_root)
+      -> @graft.branch(app_root, expects, broad_imports_expected)
+      -> @graft.branch(app_root, expects, handlers_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasPageFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, page_shell)
+      -> @graft.branch(page_shell, expects, jsx_expected)
+      -> @graft.branch(page_shell, expects, broad_imports_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameEndsWithPage)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, page_shell)
+      -> @graft.branch(page_shell, expects, jsx_expected)
+      -> @graft.branch(page_shell, expects, broad_imports_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasComponentFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, component_file)
+      -> @graft.branch(component_file, expects, jsx_expected)
+      -> @graft.branch(component_file, hasLowToleranceFor, low_data_access_tolerance)
+      -> @graft.branch(component_file, hasLowToleranceFor, low_domain_logic_tolerance)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameEndsWithComponent)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, component_file)
+      -> @graft.branch(component_file, expects, jsx_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasModalFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, modal_component)
+      -> @graft.branch(modal_component, expects, jsx_expected)
+      -> @graft.branch(modal_component, expects, handlers_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameIsModal)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, modal_component)
+      -> @graft.branch(modal_component, expects, jsx_expected)
+      -> @graft.branch(modal_component, expects, handlers_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasHookFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, hook_file)
+      -> @graft.branch(hook_file, expects, stateful_logic_expected)
+      -> @graft.branch(hook_file, expects, handlers_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameStartsWithUse)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, hook_file)
+      -> @graft.branch(hook_file, expects, stateful_logic_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasServiceFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, service_file)
+      -> @graft.branch(service_file, expects, async_io_expected)
+      -> @graft.branch(service_file, hasLowToleranceFor, low_ui_import_tolerance)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameLooksService)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, service_file)
+      -> @graft.branch(service_file, expects, async_io_expected)
+      -> @graft.branch(service_file, hasLowToleranceFor, low_ui_import_tolerance)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasDomainFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, domain_core_file)
+      -> @graft.branch(domain_core_file, expects, domain_rules_expected)
+      -> @graft.branch(domain_core_file, hasLowToleranceFor, low_ui_import_tolerance)
+      -> @graft.branch(domain_core_file, hasLowToleranceFor, low_data_access_tolerance)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameLooksDomain)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, domain_core_file)
+      -> @graft.branch(domain_core_file, expects, domain_rules_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasUtilityFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, utility_file)
+      -> @graft.branch(utility_file, hasLowToleranceFor, low_ui_import_tolerance)
+      -> @graft.branch(utility_file, hasLowToleranceFor, low_data_access_tolerance)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameLooksUtility)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, utility_file)
+      -> @graft.branch(utility_file, hasLowToleranceFor, low_ui_import_tolerance)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasFeatureFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, feature_module_file)
+      -> @graft.branch(feature_module_file, expects, broad_imports_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasStateFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, state_module_file)
+      -> @graft.branch(state_module_file, expects, stateful_logic_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasTestFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, test_support_file)
+      -> @graft.branch(test_support_file, expects, test_imports_expected)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasStyleAssetFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, style_asset_file)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileExtensionIsStyleLike)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, style_asset_file)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasConfigurationFolder)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, configuration_file)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameLooksConfig)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, configuration_file)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, noPathRoleDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasFileRole, unknown_file_role)
+    },
+  }
+
+export app_root
+export page_shell
+export component_file
+export modal_component
+export hook_file
+export service_file
+export domain_core_file
+export utility_file
+export feature_module_file
+export state_module_file
+export test_support_file
+export style_asset_file
+export configuration_file
+export unknown_file_role
+
+export broad_imports_expected
+export handlers_expected
+export jsx_expected
+export stateful_logic_expected
+export async_io_expected
+export domain_rules_expected
+export test_imports_expected
+export low_ui_import_tolerance
+export low_data_access_tolerance
+export low_domain_logic_tolerance
+
+export fileContextReviewGraph

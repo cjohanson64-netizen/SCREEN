@@ -1,0 +1,40 @@
+// risk_review_rules.tat
+
+import {
+  file_analysis,
+} from "./shared_review_nodes.tat"
+
+risky_to_extend = <{}>
+
+finding_refactor_first = <{}>
+
+riskReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    risky_to_extend,
+
+    finding_refactor_first,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Escalation signal
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 70) {
+    then: {
+      -> @graft.branch(file_analysis, hasRisk, risky_to_extend)
+      -> @graft.branch(file_analysis, hasFinding, finding_refactor_first)
+    },
+  }
+
+export risky_to_extend
+
+export finding_refactor_first
+
+export riskReviewGraph

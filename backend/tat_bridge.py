@@ -8,7 +8,13 @@ from typing import Any, Dict, List
 TAT_ROOT = Path(__file__).resolve().parents[1] / "tat-library"
 TAT_RUNNER = TAT_ROOT / "run-module.ts"
 
-RULES_PATH = (
+REVIEW_RULES_DIR = (
+    Path(__file__).resolve().parent
+    / "tat_modules"
+    / "review_rules"
+)
+
+LEGACY_RULES_PATH = (
     Path(__file__).resolve().parent
     / "tat_modules"
     / "review_rules.tat"
@@ -16,6 +22,265 @@ RULES_PATH = (
 
 STATE_INJECTION_HOOK = "python_review_state"
 STATE_INJECTION_EXTENSION = ".py"
+
+
+DEFAULT_ANALYSIS_SCOPES = ["full"]
+
+CONTEXT_EDGE_RELATIONS = {
+    "hasFileRole",
+    "expects",
+    "hasLowToleranceFor",
+    "hasRefactorUrgency",
+    "hasWorthinessSignal",
+    "hasRecommendation",
+    "hasReason",
+    "hasDomainCohesion",
+    "hasActiveDomain",
+    "hasDomainSignal",
+    "hasDomainRecommendation",
+    "hasDomainReason",
+    "hasExtractionPlan",
+    "hasExtractionStep",
+    "hasExtractionReason",
+    "hasSignalConfidence",
+}
+
+ANALYSIS_SCOPE_CATALOG = {
+    "structure": {
+        "signals": {
+            "long_file",
+            "token_heavy",
+            "block_heavy",
+            "deeply_nested",
+            "long_lines",
+        },
+        "risks": set(),
+        "findings": {
+            "finding_file_too_large",
+        },
+        "clusters": {
+            "structure_cluster",
+        },
+    },
+    "functions": {
+        "signals": {
+            "function_heavy",
+            "hook_heavy",
+            "component_heavy",
+            "getter_heavy",
+            "setter_heavy",
+            "predicate_heavy",
+            "analyzer_heavy",
+            "handler_heavy",
+            "builder_heavy",
+            "transformer_heavy",
+            "io_heavy",
+            "orchestrator_heavy",
+        },
+        "risks": set(),
+        "findings": {
+            "finding_hooks_should_move",
+            "finding_components_should_split",
+            "finding_getters_should_group",
+            "finding_predicates_should_group",
+            "finding_analyzers_should_group",
+            "finding_handlers_should_group",
+        },
+        "clusters": {
+            "function_profile_cluster",
+            "react_cluster",
+            "data_access_cluster",
+            "rule_logic_cluster",
+            "analysis_cluster",
+            "interaction_cluster",
+        },
+    },
+    "constants": {
+        "signals": {
+            "constant_heavy",
+            "boolean_constant_heavy",
+            "threshold_constant_heavy",
+            "flag_constant_heavy",
+            "decision_rule_constant_heavy",
+            "predicate_constant_heavy",
+            "capability_constant_heavy",
+            "requirement_rule_constant_heavy",
+            "feature_flag_constant_heavy",
+            "visibility_flag_heavy",
+            "state_flag_heavy",
+            "validation_flag_heavy",
+            "render_data_projection",
+            "entity_alias_heavy",
+            "collection_alias_heavy",
+            "derived_value_heavy",
+            "boolean_expression_constant_heavy",
+            "action_guard_heavy",
+            "function_expression_constant_heavy",
+            "view_model_pressure",
+        },
+        "risks": set(),
+        "findings": {
+            "finding_boolean_constants_should_group",
+            "finding_threshold_constants_should_group",
+            "finding_flag_constants_should_group",
+            "finding_decision_constants_should_group",
+            "finding_render_data_projection_should_extract",
+            "finding_action_guards_should_group",
+            "finding_function_expressions_should_review",
+            "finding_view_model_pressure",
+        },
+        "clusters": {
+            "constant_profile_cluster",
+            "boolean_logic_cluster",
+            "configuration_cluster",
+            "ui_state_cluster",
+            "render_projection_cluster",
+            "view_model_cluster",
+            "action_guard_cluster",
+            "function_profile_cluster",
+        },
+    },
+    "imports": {
+        "signals": {
+            "import_heavy",
+            "external_import_heavy",
+            "local_import_heavy",
+            "deep_relative_import_heavy",
+            "wide_named_import_heavy",
+            "import_responsibility_spread",
+            "ui_imports_data_access",
+            "ui_imports_domain_logic",
+            "production_imports_test_support",
+        },
+        "risks": set(),
+        "findings": {
+            "finding_import_responsibility_spread",
+            "finding_ui_imports_data_access",
+            "finding_ui_imports_domain_logic",
+            "finding_production_imports_test_support",
+        },
+        "clusters": {
+            "import_profile_cluster",
+            "architecture_boundary_cluster",
+            "dependency_coupling_cluster",
+        },
+    },
+    "exports": {
+        "signals": {
+            "export_heavy",
+            "named_export_heavy",
+            "default_export_present",
+            "reexport_heavy",
+            "star_reexport_present",
+            "barrel_file",
+            "public_api_pressure",
+            "export_responsibility_spread",
+            "mixed_export_roles",
+            "utility_grab_bag",
+            "type_export_heavy",
+        },
+        "risks": set(),
+        "findings": {
+            "finding_export_responsibility_spread",
+            "finding_utility_grab_bag",
+            "finding_barrel_file",
+            "finding_public_api_pressure",
+        },
+        "clusters": {
+            "export_profile_cluster",
+            "public_api_cluster",
+        },
+    },
+    "loops": {
+        "signals": {
+            "loop_heavy",
+        },
+        "risks": set(),
+        "findings": set(),
+        "clusters": {
+            "complexity_cluster",
+        },
+    },
+    "complexity": {
+        "signals": {
+            "repetition_high",
+            "complexity_high",
+            "decision_heavy",
+            "boolean_heavy",
+            "error_handling_heavy",
+        },
+        "risks": set(),
+        "findings": {
+            "finding_complexity_high",
+            "finding_duplication_high",
+        },
+        "clusters": {
+            "complexity_cluster",
+        },
+    },
+    "risk": {
+        "signals": set(),
+        "risks": {
+            "risky_to_extend",
+        },
+        "findings": {
+            "finding_refactor_first",
+        },
+        "clusters": set(),
+    },
+}
+
+
+ANALYSIS_SCOPE_TO_RULE_MODULE = {
+    "context": {
+        "file": "file_context_review_rules.tat",
+        "graph": "fileContextReviewGraph",
+    },
+    "worthiness": {
+        "file": "refactor_worthiness_review_rules.tat",
+        "graph": "refactorWorthinessReviewGraph",
+    },
+    "cohesion": {
+        "file": "domain_cohesion_review_rules.tat",
+        "graph": "domainCohesionReviewGraph",
+    },
+        "extraction": {
+        "file": "extraction_order_review_rules.tat",
+        "graph": "extractionOrderReviewGraph",
+    },
+    "structure": {
+        "file": "structure_review_rules.tat",
+        "graph": "structureReviewGraph",
+    },
+    "functions": {
+        "file": "function_review_rules.tat",
+        "graph": "functionReviewGraph",
+    },
+    "constants": {
+        "file": "constant_review_rules.tat",
+        "graph": "constantReviewGraph",
+    },
+    "imports": {
+        "file": "import_review_rules.tat",
+        "graph": "importReviewGraph",
+    },
+    "exports": {
+        "file": "export_review_rules.tat",
+        "graph": "exportReviewGraph",
+    },
+    "loops": {
+        "file": "loop_review_rules.tat",
+        "graph": "loopReviewGraph",
+    },
+    "complexity": {
+        "file": "complexity_review_rules.tat",
+        "graph": "complexityReviewGraph",
+    },
+    "risk": {
+        "file": "risk_review_rules.tat",
+        "graph": "riskReviewGraph",
+    },
+}
 
 FINDING_CATALOG = {
     "finding_file_too_large": {
@@ -229,21 +494,33 @@ FINDING_CATALOG = {
 }
 
 
-def run_tat_review(metrics: Dict[str, Any]) -> Dict[str, Any]:
+def run_tat_review(metrics: Dict[str, Any], analysis_scopes: List[str] | None = None) -> Dict[str, Any]:
+    normalized_scopes = normalize_analysis_scopes(analysis_scopes)
+    selected_modules = get_selected_review_modules(normalized_scopes)
     state_tat = build_state_injection(metrics)
 
-    with open(RULES_PATH, "r", encoding="utf-8") as file:
-        rules_tat = file.read()
+    try:
+        combined = build_dynamic_review_source(selected_modules)
+    except FileNotFoundError:
+        with open(LEGACY_RULES_PATH, "r", encoding="utf-8") as file:
+            rules_tat = file.read()
 
-    combined = resolve_tat_injection(
-        tat_source=rules_tat,
-        hook_ref=STATE_INJECTION_HOOK,
-        file_extension=STATE_INJECTION_EXTENSION,
-        injected_source=state_tat,
-    )
-    
-    result = run_tat_source(combined)
-    
+        combined = resolve_tat_injection(
+            tat_source=rules_tat,
+            hook_ref=STATE_INJECTION_HOOK,
+            file_extension=STATE_INJECTION_EXTENSION,
+            injected_source=state_tat,
+        )
+        execution_mode = "legacy_full_review_fallback"
+    else:
+        combined = resolve_tat_injection(
+            tat_source=combined,
+            hook_ref=STATE_INJECTION_HOOK,
+            file_extension=STATE_INJECTION_EXTENSION,
+            injected_source=state_tat,
+        )
+        execution_mode = "dynamic_selected_review_pipeline"
+
     result = run_tat_source(combined)
 
     if result.returncode != 0:
@@ -256,12 +533,12 @@ def run_tat_review(metrics: Dict[str, Any]) -> Dict[str, Any]:
         print("\nGENERATED TAT SOURCE:")
         print(combined)
         print("--- END TAT REVIEW FAILURE ---\n")
-            
+
     edges = parse_tat_edges(result.stdout)
     clusters = build_clusters(edges)
     findings = build_findings(edges)
 
-    return {
+    review = {
         "success": result.returncode == 0,
         "stdout": result.stdout,
         "stderr": result.stderr,
@@ -278,8 +555,368 @@ def run_tat_review(metrics: Dict[str, Any]) -> Dict[str, Any]:
         ],
         "clusters": clusters,
         "findings": findings,
+        "fileRoles": extract_edge_objects(edges, "hasFileRole"),
+        "expectedTraits": extract_trait_map(edges, "expects"),
+        "lowToleranceTraits": extract_trait_map(edges, "hasLowToleranceFor"),
+        "refactorUrgency": extract_refactor_urgency(edges),
+        "refactorUrgencyCandidates": extract_edge_objects(edges, "hasRefactorUrgency"),
+        "refactorWorthinessSignals": extract_edge_objects(edges, "hasWorthinessSignal"),
+        "refactorRecommendations": extract_edge_objects(edges, "hasRecommendation"),
+        "refactorReasonMap": extract_trait_map(edges, "hasReason"),
+        "domainCohesion": extract_domain_cohesion(edges),
+        "activeDomains": extract_edge_objects(edges, "hasActiveDomain"),
+        "domainSignals": extract_edge_objects(edges, "hasDomainSignal"),
+        "domainRecommendations": extract_edge_objects(edges, "hasDomainRecommendation"),
+        "domainReasonMap": extract_trait_map(edges, "hasCohesionReason"),
+        "extractionPlan": extract_edge_objects(edges, "hasExtractionPlan"),
+        "extractionSteps": extract_ordered_extraction_steps(edges),
+        "extractionReasonMap": extract_trait_map(edges, "hasExtractionReason"),
         "tatSource": combined,
+        "tatExecutionMode": execution_mode,
+        "selectedTatGraphs": [module["graph"] for module in selected_modules],
+        "analysisScopes": normalized_scopes,
+        "availableAnalysisScopes": list(ANALYSIS_SCOPE_CATALOG.keys()),
+        "signalConfidence": extract_signal_confidence(edges, metrics),
     }
+
+    # Keep this as a safety net. Dynamic source should already run only selected
+    # rule bodies, but filtering prevents stale or legacy fallback output from
+    # leaking unchecked review domains into the UI.
+    return filter_tat_review_by_scope(review, normalized_scopes)
+
+
+NODE_DECLARATION_PATTERN = re.compile(r"(?m)^\s*([A-Za-z_]\w*)\s*=\s*<\{\}>\s*$")
+IMPORT_BLOCK_PATTERN = re.compile(r"(?ms)^import\s*\{.*?\}\s*from\s*[\"'][^\"']+[\"']\s*")
+EXPORT_LINE_PATTERN = re.compile(r"(?m)^\s*export\s+[^\n]+\n?")
+SEED_ASSIGNMENT_PATTERN = re.compile(r"(?m)^\s*[A-Za-z_]\w*\s*:=\s*@seed\s*\{")
+
+
+BASELINE_REVIEW_SCOPE_IDS = ["context", "cohesion", "worthiness", "extraction"]
+
+
+def get_selected_review_modules(normalized_scopes: List[str]) -> List[Dict[str, str]]:
+    if "full" in normalized_scopes:
+        scope_ids = [
+            scope
+            for scope in ANALYSIS_SCOPE_TO_RULE_MODULE
+            if scope not in BASELINE_REVIEW_SCOPE_IDS
+        ]
+    else:
+        scope_ids = [
+            scope
+            for scope in normalized_scopes
+            if scope in ANALYSIS_SCOPE_TO_RULE_MODULE
+            and scope not in BASELINE_REVIEW_SCOPE_IDS
+        ]
+
+    # File context and refactor-worthiness are baseline interpretation passes.
+    # They run for every analysis scope so SCREEN can explain how strongly the
+    # selected signals should push toward a refactor.
+    ordered_scope_ids = [
+        *BASELINE_REVIEW_SCOPE_IDS,
+        *[scope for scope in scope_ids if scope not in BASELINE_REVIEW_SCOPE_IDS],
+    ]
+
+    return [ANALYSIS_SCOPE_TO_RULE_MODULE[scope] for scope in ordered_scope_ids]
+
+
+def build_dynamic_review_source(selected_modules: List[Dict[str, str]]) -> str:
+    shared_source = read_review_rule_module("shared_review_nodes.tat")
+    module_sources = [read_review_rule_module(module["file"]) for module in selected_modules]
+    selected_graph_names = [module["graph"] for module in selected_modules]
+
+    declarations = collect_node_declarations([shared_source, *module_sources])
+    rule_bodies = [extract_rule_pipeline_body(source) for source in module_sources]
+
+    nodes = "\n".join(f"    {name}," for name in declarations)
+    rules = "\n\n".join(body for body in rule_bodies if body.strip())
+
+    selected_graph_comment = "\n".join(
+        f"// selected graph: {graph_name}" for graph_name in selected_graph_names
+    )
+
+    return f"""// dynamic_selected_review_pipeline.tat
+// Generated by backend/tat_bridge.py.
+// It intentionally inlines only the selected review rule bodies so injected
+// Python state is available before the selected @if rules execute.
+{selected_graph_comment}
+
+{format_node_declarations(declarations)}
+
+graph := @seed {{
+  nodes: [
+{nodes}
+  ],
+  edges: [],
+  state: {{}},
+  meta: {{}},
+  root: file_analysis,
+}}
+
+  <- @inject({STATE_INJECTION_HOOK}, "{STATE_INJECTION_EXTENSION}")
+
+{rules}
+
+projection := graph <> @project.apply(graph, file_analysis)
+"""
+
+
+def read_review_rule_module(filename: str) -> str:
+    return (REVIEW_RULES_DIR / filename).read_text(encoding="utf-8")
+
+
+def collect_node_declarations(sources: List[str]) -> List[str]:
+    declarations: List[str] = []
+    seen: set[str] = set()
+
+    for source in sources:
+        source_without_imports = IMPORT_BLOCK_PATTERN.sub("", source)
+        for match in NODE_DECLARATION_PATTERN.finditer(source_without_imports):
+            name = match.group(1)
+            if name in seen:
+                continue
+            seen.add(name)
+            declarations.append(name)
+
+    return declarations
+
+
+def format_node_declarations(declarations: List[str]) -> str:
+    return "\n".join(f"{name} = <{{}}>" for name in declarations)
+
+
+def extract_rule_pipeline_body(source: str) -> str:
+    source_without_imports = IMPORT_BLOCK_PATTERN.sub("", source)
+    source_without_exports = EXPORT_LINE_PATTERN.sub("", source_without_imports)
+
+    seed_match = SEED_ASSIGNMENT_PATTERN.search(source_without_exports)
+    if not seed_match:
+        return ""
+
+    seed_start = seed_match.end() - 1
+    seed_end = find_matching_brace(source_without_exports, seed_start)
+    if seed_end == -1:
+        return ""
+
+    return source_without_exports[seed_end + 1 :].strip()
+
+
+def find_matching_brace(source: str, opening_brace_index: int) -> int:
+    depth = 0
+
+    for index in range(opening_brace_index, len(source)):
+        char = source[index]
+
+        if char == "{":
+            depth += 1
+            continue
+
+        if char == "}":
+            depth -= 1
+            if depth == 0:
+                return index
+
+    return -1
+
+def normalize_analysis_scopes(analysis_scopes: List[str] | None) -> List[str]:
+    if not analysis_scopes:
+        return DEFAULT_ANALYSIS_SCOPES
+
+    valid_scopes = [
+        scope
+        for scope in analysis_scopes
+        if scope == "full" or scope in ANALYSIS_SCOPE_CATALOG
+    ]
+
+    if not valid_scopes or "full" in valid_scopes:
+        return DEFAULT_ANALYSIS_SCOPES
+
+    return valid_scopes
+
+
+def filter_tat_review_by_scope(
+    review: Dict[str, Any],
+    analysis_scopes: List[str] | None,
+) -> Dict[str, Any]:
+    normalized_scopes = normalize_analysis_scopes(analysis_scopes)
+
+    if "full" in normalized_scopes:
+        return {
+            **review,
+            "analysisScopes": normalized_scopes,
+            "availableAnalysisScopes": list(ANALYSIS_SCOPE_CATALOG.keys()),
+            "signalConfidence": review.get("signalConfidence", {}),
+        }
+
+    allowed_signals: set[str] = set()
+    allowed_risks: set[str] = set()
+    allowed_findings: set[str] = set()
+    allowed_clusters: set[str] = set()
+
+    for scope in normalized_scopes:
+        scope_config = ANALYSIS_SCOPE_CATALOG.get(scope, {})
+        allowed_signals.update(scope_config.get("signals", set()))
+        allowed_risks.update(scope_config.get("risks", set()))
+        allowed_findings.update(scope_config.get("findings", set()))
+        allowed_clusters.update(scope_config.get("clusters", set()))
+
+    filtered_edges = [
+        edge
+        for edge in review.get("edges", [])
+        if should_keep_edge_for_scope(
+            edge=edge,
+            allowed_signals=allowed_signals,
+            allowed_risks=allowed_risks,
+            allowed_findings=allowed_findings,
+            allowed_clusters=allowed_clusters,
+        )
+    ]
+
+    filtered_signals = [
+        signal
+        for signal in review.get("signals", [])
+        if signal in allowed_signals
+    ]
+
+    filtered_risks = [
+        risk
+        for risk in review.get("risks", [])
+        if risk in allowed_risks
+    ]
+
+    filtered_findings = [
+        finding
+        for finding in review.get("findings", [])
+        if finding.get("id") in allowed_findings
+    ]
+
+    filtered_clusters = {
+        cluster: [signal for signal in signals if signal in allowed_signals]
+        for cluster, signals in review.get("clusters", {}).items()
+        if cluster in allowed_clusters
+    }
+    filtered_clusters = {
+        cluster: signals
+        for cluster, signals in filtered_clusters.items()
+        if signals
+    }
+
+    return {
+        **review,
+        "edges": filtered_edges,
+        "signals": filtered_signals,
+        "risks": filtered_risks,
+        "clusters": filtered_clusters,
+        "findings": filtered_findings,
+        "fileRoles": review.get("fileRoles", []),
+        "expectedTraits": review.get("expectedTraits", {}),
+        "lowToleranceTraits": review.get("lowToleranceTraits", {}),
+        "refactorUrgency": review.get("refactorUrgency", "none"),
+        "refactorUrgencyCandidates": review.get("refactorUrgencyCandidates", []),
+        "refactorWorthinessSignals": review.get("refactorWorthinessSignals", []),
+        "refactorRecommendations": review.get("refactorRecommendations", []),
+        "refactorReasonMap": review.get("refactorReasonMap", {}),
+        "domainCohesion": review.get("domainCohesion", "unknown"),
+        "activeDomains": review.get("activeDomains", []),
+        "domainSignals": review.get("domainSignals", []),
+        "domainRecommendations": review.get("domainRecommendations", []),
+        "domainReasonMap": review.get("domainReasonMap", {}),
+        "extractionPlan": review.get("extractionPlan", []),
+        "extractionSteps": review.get("extractionSteps", []),
+        "extractionReasonMap": review.get("extractionReasonMap", {}),
+        "analysisScopes": normalized_scopes,
+        "availableAnalysisScopes": list(ANALYSIS_SCOPE_CATALOG.keys()),
+        "signalConfidence": filter_signal_confidence(
+            review.get("signalConfidence", {}),
+            filtered_signals,
+        ),
+    }
+    
+EXTRACTION_STEP_ORDER = {
+    "defer_extraction_watch_first": 0,
+    "render_only_component_first": 1,
+    "display_view_model_helper_first": 2,
+    "predicate_rule_cluster_first": 3,
+    "workflow_hook_first": 4,
+    "service_boundary_first": 5,
+    "domain_module_first": 6,
+    "public_api_grouping_first": 7,
+}
+
+def extract_signal_confidence(
+    edges: List[Dict[str, str]],
+    metrics: Dict[str, Any],
+) -> Dict[str, Any]:
+    import_profile = metrics.get("importProfile", {})
+    confidence = dict(import_profile.get("signalConfidence", {}))
+
+    for edge in edges:
+        if edge.get("relation") != "hasSignalConfidence":
+            continue
+
+        signal = edge.get("subject")
+        confidence_node = edge.get("object")
+
+        if not signal:
+            continue
+
+        existing = confidence.get(signal, {})
+        confidence[signal] = {
+            **existing,
+            "tatConfidence": confidence_node,
+        }
+
+    return confidence
+
+
+def filter_signal_confidence(
+    signal_confidence: Dict[str, Any],
+    selected_signals: List[str],
+) -> Dict[str, Any]:
+    selected = set(selected_signals)
+
+    return {
+        signal: details
+        for signal, details in signal_confidence.items()
+        if signal in selected
+    }
+
+def extract_ordered_extraction_steps(edges: List[Dict[str, str]]) -> List[str]:
+    steps = extract_edge_objects(edges, "hasExtractionStep")
+
+    return sorted(
+        steps,
+        key=lambda step: EXTRACTION_STEP_ORDER.get(step, 99),
+    )
+
+
+def should_keep_edge_for_scope(
+    edge: Dict[str, str],
+    allowed_signals: set[str],
+    allowed_risks: set[str],
+    allowed_findings: set[str],
+    allowed_clusters: set[str],
+) -> bool:
+    relation = edge.get("relation")
+    subject = edge.get("subject")
+    obj = edge.get("object")
+
+    if relation in CONTEXT_EDGE_RELATIONS:
+        return True
+
+    if relation == "hasSignal":
+        return obj in allowed_signals
+
+    if relation == "hasRisk":
+        return obj in allowed_risks
+
+    if relation == "hasFinding":
+        return obj in allowed_findings
+
+    if relation == "belongsToCluster":
+        return subject in allowed_signals and obj in allowed_clusters
+
+    return subject in allowed_signals or obj in allowed_signals
 
 
 def run_tat_source(source: str):
@@ -375,6 +1012,100 @@ def parse_graph_edge_line(line: str) -> Dict[str, str] | None:
         "object": obj,
     }
 
+
+
+REFACTOR_URGENCY_ORDER = {
+    "refactor_none": 0,
+    "refactor_watch": 1,
+    "refactor_recommended": 2,
+    "refactor_urgent": 3,
+}
+
+REFACTOR_URGENCY_LABELS = {
+    "refactor_none": "none",
+    "refactor_watch": "watch",
+    "refactor_recommended": "recommended",
+    "refactor_urgent": "urgent",
+}
+
+
+def extract_refactor_urgency(edges: List[Dict[str, str]]) -> str:
+    urgency_nodes = extract_edge_objects(edges, "hasRefactorUrgency")
+
+    if not urgency_nodes:
+        return "none"
+
+    strongest_node = max(
+        urgency_nodes,
+        key=lambda node: REFACTOR_URGENCY_ORDER.get(node, 0),
+    )
+
+    return REFACTOR_URGENCY_LABELS.get(strongest_node, "none")
+
+
+
+DOMAIN_COHESION_ORDER = {
+    "domain_ambiguous": 0,
+    "domain_cohesive": 1,
+    "domain_mixed": 2,
+}
+
+DOMAIN_COHESION_LABELS = {
+    "domain_ambiguous": "ambiguous",
+    "domain_cohesive": "cohesive",
+    "domain_mixed": "mixed",
+}
+
+
+def extract_domain_cohesion(edges: List[Dict[str, str]]) -> str:
+    cohesion_nodes = extract_edge_objects(edges, "hasDomainCohesion")
+
+    if not cohesion_nodes:
+        return "unknown"
+
+    strongest_node = max(
+        cohesion_nodes,
+        key=lambda node: DOMAIN_COHESION_ORDER.get(node, 0),
+    )
+
+    return DOMAIN_COHESION_LABELS.get(strongest_node, "unknown")
+
+
+def extract_edge_objects(edges: List[Dict[str, str]], relation: str) -> List[str]:
+    values: List[str] = []
+    seen: set[str] = set()
+
+    for edge in edges:
+        if edge.get("relation") != relation:
+            continue
+
+        value = edge.get("object")
+        if not value or value in seen:
+            continue
+
+        seen.add(value)
+        values.append(value)
+
+    return values
+
+
+def extract_trait_map(edges: List[Dict[str, str]], relation: str) -> Dict[str, List[str]]:
+    trait_map: Dict[str, List[str]] = {}
+
+    for edge in edges:
+        if edge.get("relation") != relation:
+            continue
+
+        subject = edge.get("subject")
+        obj = edge.get("object")
+        if not subject or not obj:
+            continue
+
+        trait_map.setdefault(subject, [])
+        if obj not in trait_map[subject]:
+            trait_map[subject].append(obj)
+
+    return trait_map
 
 def build_clusters(edges: List[Dict[str, str]]) -> Dict[str, List[str]]:
     clusters: Dict[str, List[str]] = {}
@@ -518,9 +1249,15 @@ def build_state_injection(metrics: Dict[str, Any]) -> str:
 
   -> @graft.state(file_analysis, importResponsibilitySpreadDetected, {flattened["importResponsibilitySpreadDetected"]})
   -> @graft.state(file_analysis, uiImportsDataAccessDetected, {flattened["uiImportsDataAccessDetected"]})
+  -> @graft.state(file_analysis, uiImportsDataAccessHighConfidence, {flattened["uiImportsDataAccessHighConfidence"]})
+  -> @graft.state(file_analysis, uiImportsDataAccessMediumConfidence, {flattened["uiImportsDataAccessMediumConfidence"]})
   -> @graft.state(file_analysis, uiImportsDomainLogicDetected, {flattened["uiImportsDomainLogicDetected"]})
+  -> @graft.state(file_analysis, uiImportsDomainLogicHighConfidence, {flattened["uiImportsDomainLogicHighConfidence"]})
+  -> @graft.state(file_analysis, uiImportsDomainLogicMediumConfidence, {flattened["uiImportsDomainLogicMediumConfidence"]})
   -> @graft.state(file_analysis, productionImportsTestSupportDetected, {flattened["productionImportsTestSupportDetected"]})
-
+  -> @graft.state(file_analysis, productionImportsTestSupportHighConfidence, {flattened["productionImportsTestSupportHighConfidence"]})
+  -> @graft.state(file_analysis, productionImportsTestSupportMediumConfidence, {flattened["productionImportsTestSupportMediumConfidence"]})
+  
   -> @graft.state(file_analysis, exportCount, {flattened["exportCount"]})
   -> @graft.state(file_analysis, namedExportCount, {flattened["namedExportCount"]})
   -> @graft.state(file_analysis, defaultExportCount, {flattened["defaultExportCount"]})
@@ -555,9 +1292,56 @@ def build_state_injection(metrics: Dict[str, Any]) -> str:
   -> @graft.state(file_analysis, loopCount, {flattened["loopCount"]})
   -> @graft.state(file_analysis, booleanOperators, {flattened["booleanOperators"]})
   -> @graft.state(file_analysis, tryCatchBlocks, {flattened["tryCatchBlocks"]})
+
+  -> @graft.state(file_analysis, pathHasAppFolder, {flattened["pathHasAppFolder"]})
+  -> @graft.state(file_analysis, pathHasPageFolder, {flattened["pathHasPageFolder"]})
+  -> @graft.state(file_analysis, pathHasComponentFolder, {flattened["pathHasComponentFolder"]})
+  -> @graft.state(file_analysis, pathHasModalFolder, {flattened["pathHasModalFolder"]})
+  -> @graft.state(file_analysis, pathHasHookFolder, {flattened["pathHasHookFolder"]})
+  -> @graft.state(file_analysis, pathHasServiceFolder, {flattened["pathHasServiceFolder"]})
+  -> @graft.state(file_analysis, pathHasDomainFolder, {flattened["pathHasDomainFolder"]})
+  -> @graft.state(file_analysis, pathHasUtilityFolder, {flattened["pathHasUtilityFolder"]})
+  -> @graft.state(file_analysis, pathHasFeatureFolder, {flattened["pathHasFeatureFolder"]})
+  -> @graft.state(file_analysis, pathHasStateFolder, {flattened["pathHasStateFolder"]})
+  -> @graft.state(file_analysis, pathHasTestFolder, {flattened["pathHasTestFolder"]})
+  -> @graft.state(file_analysis, pathHasStyleAssetFolder, {flattened["pathHasStyleAssetFolder"]})
+  -> @graft.state(file_analysis, pathHasConfigurationFolder, {flattened["pathHasConfigurationFolder"]})
+
+  -> @graft.state(file_analysis, fileNameIsAppRoot, {flattened["fileNameIsAppRoot"]})
+  -> @graft.state(file_analysis, fileNameEndsWithPage, {flattened["fileNameEndsWithPage"]})
+  -> @graft.state(file_analysis, fileNameEndsWithComponent, {flattened["fileNameEndsWithComponent"]})
+  -> @graft.state(file_analysis, fileNameIsModal, {flattened["fileNameIsModal"]})
+  -> @graft.state(file_analysis, fileNameStartsWithUse, {flattened["fileNameStartsWithUse"]})
+  -> @graft.state(file_analysis, fileNameLooksService, {flattened["fileNameLooksService"]})
+  -> @graft.state(file_analysis, fileNameLooksDomain, {flattened["fileNameLooksDomain"]})
+  -> @graft.state(file_analysis, fileNameLooksUtility, {flattened["fileNameLooksUtility"]})
+  -> @graft.state(file_analysis, fileNameLooksConfig, {flattened["fileNameLooksConfig"]})
+
+  -> @graft.state(file_analysis, fileExtensionIsJsxLike, {flattened["fileExtensionIsJsxLike"]})
+  -> @graft.state(file_analysis, fileExtensionIsStyleLike, {flattened["fileExtensionIsStyleLike"]})
+  -> @graft.state(file_analysis, fileExtensionIsScriptLike, {flattened["fileExtensionIsScriptLike"]})
+  -> @graft.state(file_analysis, noPathRoleDetected, {flattened["noPathRoleDetected"]})
+
+  -> @graft.state(file_analysis, uiRenderingDomainEvidence, {flattened["uiRenderingDomainEvidence"]})
+  -> @graft.state(file_analysis, stateBehaviorDomainEvidence, {flattened["stateBehaviorDomainEvidence"]})
+  -> @graft.state(file_analysis, domainLogicDomainEvidence, {flattened["domainLogicDomainEvidence"]})
+  -> @graft.state(file_analysis, dataAccessDomainEvidence, {flattened["dataAccessDomainEvidence"]})
+  -> @graft.state(file_analysis, configurationDomainEvidence, {flattened["configurationDomainEvidence"]})
+  -> @graft.state(file_analysis, publicApiDomainEvidence, {flattened["publicApiDomainEvidence"]})
+  -> @graft.state(file_analysis, testSupportDomainEvidence, {flattened["testSupportDomainEvidence"]})
+  -> @graft.state(file_analysis, activeResponsibilityDomainCount, {flattened["activeResponsibilityDomainCount"]})
+  -> @graft.state(file_analysis, hasDominantResponsibilityDomain, {flattened["hasDominantResponsibilityDomain"]})
+  -> @graft.state(file_analysis, domainCohesionLikely, {flattened["domainCohesionLikely"]})
+  -> @graft.state(file_analysis, multiDomainMixingLikely, {flattened["multiDomainMixingLikely"]})
 """
 def tat_bool(value: bool) -> str:
     return "true" if value else "false"
+
+def signal_confidence_level(
+    signal_confidence: Dict[str, Dict[str, Any]],
+    signal: str,
+) -> str:
+    return signal_confidence.get(signal, {}).get("level", "low")
 
 def flatten_metrics(metrics: Dict[str, Any]) -> Dict[str, Any]:
     complexity = metrics.get("complexity", {})
@@ -572,9 +1356,14 @@ def flatten_metrics(metrics: Dict[str, Any]) -> Dict[str, Any]:
     import_profile = metrics.get("importProfile", {})
     import_categories = import_profile.get("categoryCounts", {})
     import_signals = set(import_profile.get("signals", []))
+    import_signal_confidence = import_profile.get("signalConfidence", {})
 
     export_profile = metrics.get("exportProfile", {})
     export_signals = set(export_profile.get("signals", []))
+
+    file_context = metrics.get("fileContext", {})
+    domain_cohesion = metrics.get("domainCohesion", {})
+    domain_evidence = domain_cohesion.get("evidence", {})
 
     return {
         "lineCount": metrics.get("lineCount", 0),
@@ -640,9 +1429,15 @@ def flatten_metrics(metrics: Dict[str, Any]) -> Dict[str, Any]:
 
         "importResponsibilitySpreadDetected": tat_bool("import_responsibility_spread" in import_signals),
         "uiImportsDataAccessDetected": tat_bool("ui_imports_data_access" in import_signals),
+        "uiImportsDataAccessHighConfidence": tat_bool(signal_confidence_level(import_signal_confidence, "ui_imports_data_access") == "high"),
+        "uiImportsDataAccessMediumConfidence": tat_bool(signal_confidence_level(import_signal_confidence, "ui_imports_data_access") == "medium"),
         "uiImportsDomainLogicDetected": tat_bool("ui_imports_domain_logic" in import_signals),
+        "uiImportsDomainLogicHighConfidence": tat_bool(signal_confidence_level(import_signal_confidence, "ui_imports_domain_logic") == "high"),
+        "uiImportsDomainLogicMediumConfidence": tat_bool(signal_confidence_level(import_signal_confidence, "ui_imports_domain_logic") == "medium"),
         "productionImportsTestSupportDetected": tat_bool("production_imports_test_support" in import_signals),
-
+        "productionImportsTestSupportHighConfidence": tat_bool(signal_confidence_level(import_signal_confidence, "production_imports_test_support") == "high"),
+        "productionImportsTestSupportMediumConfidence": tat_bool(signal_confidence_level(import_signal_confidence, "production_imports_test_support") == "medium"),
+        
         "exportCount": export_profile.get("total", 0),
         "namedExportCount": export_profile.get("namedCount", 0),
         "defaultExportCount": export_profile.get("defaultCount", 0),
@@ -677,5 +1472,46 @@ def flatten_metrics(metrics: Dict[str, Any]) -> Dict[str, Any]:
         "loopCount": complexity.get("loopCount", 0),
         "booleanOperators": complexity.get("booleanOperators", 0),
         "tryCatchBlocks": complexity.get("tryCatchBlocks", 0),
+
+        "pathHasAppFolder": tat_bool(file_context.get("pathHasAppFolder", False)),
+        "pathHasPageFolder": tat_bool(file_context.get("pathHasPageFolder", False)),
+        "pathHasComponentFolder": tat_bool(file_context.get("pathHasComponentFolder", False)),
+        "pathHasModalFolder": tat_bool(file_context.get("pathHasModalFolder", False)),
+        "pathHasHookFolder": tat_bool(file_context.get("pathHasHookFolder", False)),
+        "pathHasServiceFolder": tat_bool(file_context.get("pathHasServiceFolder", False)),
+        "pathHasDomainFolder": tat_bool(file_context.get("pathHasDomainFolder", False)),
+        "pathHasUtilityFolder": tat_bool(file_context.get("pathHasUtilityFolder", False)),
+        "pathHasFeatureFolder": tat_bool(file_context.get("pathHasFeatureFolder", False)),
+        "pathHasStateFolder": tat_bool(file_context.get("pathHasStateFolder", False)),
+        "pathHasTestFolder": tat_bool(file_context.get("pathHasTestFolder", False)),
+        "pathHasStyleAssetFolder": tat_bool(file_context.get("pathHasStyleAssetFolder", False)),
+        "pathHasConfigurationFolder": tat_bool(file_context.get("pathHasConfigurationFolder", False)),
+
+        "fileNameIsAppRoot": tat_bool(file_context.get("fileNameIsAppRoot", False)),
+        "fileNameEndsWithPage": tat_bool(file_context.get("fileNameEndsWithPage", False)),
+        "fileNameEndsWithComponent": tat_bool(file_context.get("fileNameEndsWithComponent", False)),
+        "fileNameIsModal": tat_bool(file_context.get("fileNameIsModal", False)),
+        "fileNameStartsWithUse": tat_bool(file_context.get("fileNameStartsWithUse", False)),
+        "fileNameLooksService": tat_bool(file_context.get("fileNameLooksService", False)),
+        "fileNameLooksDomain": tat_bool(file_context.get("fileNameLooksDomain", False)),
+        "fileNameLooksUtility": tat_bool(file_context.get("fileNameLooksUtility", False)),
+        "fileNameLooksConfig": tat_bool(file_context.get("fileNameLooksConfig", False)),
+
+        "fileExtensionIsJsxLike": tat_bool(file_context.get("fileExtensionIsJsxLike", False)),
+        "fileExtensionIsStyleLike": tat_bool(file_context.get("fileExtensionIsStyleLike", False)),
+        "fileExtensionIsScriptLike": tat_bool(file_context.get("fileExtensionIsScriptLike", False)),
+        "noPathRoleDetected": tat_bool(file_context.get("noPathRoleDetected", False)),
+
+        "uiRenderingDomainEvidence": domain_evidence.get("ui_rendering", 0),
+        "stateBehaviorDomainEvidence": domain_evidence.get("state_behavior", 0),
+        "domainLogicDomainEvidence": domain_evidence.get("domain_logic", 0),
+        "dataAccessDomainEvidence": domain_evidence.get("data_access", 0),
+        "configurationDomainEvidence": domain_evidence.get("configuration", 0),
+        "publicApiDomainEvidence": domain_evidence.get("public_api", 0),
+        "testSupportDomainEvidence": domain_evidence.get("test_support", 0),
+        "activeResponsibilityDomainCount": domain_cohesion.get("activeResponsibilityDomainCount", 0),
+        "hasDominantResponsibilityDomain": tat_bool(domain_cohesion.get("hasDominantResponsibilityDomain", False)),
+        "domainCohesionLikely": tat_bool(domain_cohesion.get("domainCohesionLikely", False)),
+        "multiDomainMixingLikely": tat_bool(domain_cohesion.get("multiDomainMixingLikely", False)),
     }
     

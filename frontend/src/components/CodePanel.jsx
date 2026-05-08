@@ -1,10 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import CodeEditor from "./CodeEditor";
 import ResultsTabs from "./ResultsTabs";
+import AnalysisOptions from "./AnalysisOptions";
 import { buildResultsTabs } from "../utils/buildResultsTabs";
 
 const ANALYZE_API_URL = "http://localhost:5050/api/analyze";
+const DEFAULT_ANALYSIS_SCOPES = ["functions", "constants", "imports"];
+
+function normalizeAnalysisScopes(scopes) {
+  if (!Array.isArray(scopes) || scopes.length === 0) {
+    return DEFAULT_ANALYSIS_SCOPES;
+  }
+
+  return scopes;
+}
 
 export default function CodePanel({
   selectedProjectFile,
@@ -18,6 +28,9 @@ export default function CodePanel({
 
   const [result, setResult] = useState(null);
   const [highlightedLines, setHighlightedLines] = useState([]);
+  const [selectedAnalysisScopes, setSelectedAnalysisScopes] = useState(
+    DEFAULT_ANALYSIS_SCOPES,
+  );
 
   const isProjectFileMode = Boolean(selectedProjectFile);
 
@@ -31,58 +44,56 @@ export default function CodePanel({
       selectedProjectFile,
       highlightedLines,
       onHighlightLines: setHighlightedLines,
+      analysisScopes: result?.analysisScopes ?? result?.tatReview?.analysisScopes ?? selectedAnalysisScopes,
     });
-  }, [result, code, selectedProjectFile, filename, highlightedLines]);
+  }, [
+    result,
+    code,
+    selectedProjectFile,
+    filename,
+    highlightedLines,
+    selectedAnalysisScopes,
+  ]);
 
-  useEffect(() => {
-    if (!selectedProjectFile?.content) return;
+  async function handleAnalyzeSelectedFile() {
+    const normalizedScopes = normalizeAnalysisScopes(selectedAnalysisScopes);
 
-    let cancelled = false;
-
-    async function analyzeSelectedFile() {
-      await Promise.resolve();
-
-      if (cancelled) return;
-      setIsLoading(true);
-      setError("");
-
-      try {
-        const response = await fetch(ANALYZE_API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            filename: selectedProjectFile.path || "",
-            code: selectedProjectFile.content || "",
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to analyze code.");
-        }
-
-        if (cancelled) return;
-        setResult(data);
-        setHighlightedLines([]);
-      } catch (err) {
-        if (cancelled) return;
-        setError(err.message || "Failed to analyze code.");
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
+    if (!code.trim()) {
+      setError("No code provided");
+      return;
     }
 
-    analyzeSelectedFile();
+    setIsLoading(true);
+    setError("");
 
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedProjectFile]);
+    try {
+      const response = await fetch(ANALYZE_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          filename,
+          code,
+          analysisScopes: normalizedScopes,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to analyze code.");
+      }
+
+      setResult(data);
+      setHighlightedLines([]);
+    } catch (err) {
+      setError(err.message || "Failed to analyze code.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
 
   return (
     <main className="app-shell">
@@ -99,6 +110,19 @@ export default function CodePanel({
           <p className="error-message">{error}</p>
         </section>
       )}
+
+      <AnalysisOptions
+        filename={filename}
+        selectedScopes={selectedAnalysisScopes}
+        isAnalyzing={isLoading}
+        hasResult={Boolean(result)}
+        onScopesChange={(nextScopes) => {
+          setSelectedAnalysisScopes(nextScopes);
+          setResult(null);
+          setHighlightedLines([]);
+        }}
+        onAnalyze={handleAnalyzeSelectedFile}
+      />
 
       <div className="main-grid">
         <CodeEditor
@@ -122,7 +146,7 @@ export default function CodePanel({
             <section className="panel">
               <h2>Analysis Results</h2>
               <p className="muted">
-                Analysis will appear here automatically for the selected file.
+                Choose analysis options, then click Analyze selected file.
               </p>
             </section>
           )}

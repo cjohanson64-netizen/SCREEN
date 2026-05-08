@@ -1,0 +1,59 @@
+// shared_prompt_chain_nodes.tat
+
+prompt_chain = <{}>
+
+discover_phase = <{}>
+plan_phase = <{}>
+transform_phase = <{}>
+verify_phase = <{}>
+document_phase = <{}>
+
+behavior_preserving_constraint = <{}>
+architecture_awareness_constraint = <{}>
+test_first_constraint = <{}>
+
+high_risk_chain = <{}>
+medium_risk_chain = <{}>
+low_risk_chain = <{}>
+
+sharedPromptChainGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    discover_phase,
+    plan_phase,
+    transform_phase,
+    verify_phase,
+    document_phase,
+
+    behavior_preserving_constraint,
+    architecture_awareness_constraint,
+    test_first_constraint,
+
+    high_risk_chain,
+    medium_risk_chain,
+    low_risk_chain,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+export prompt_chain
+
+export discover_phase
+export plan_phase
+export transform_phase
+export verify_phase
+export document_phase
+
+export behavior_preserving_constraint
+export architecture_awareness_constraint
+export test_first_constraint
+
+export high_risk_chain
+export medium_risk_chain
+export low_risk_chain
+
+export sharedPromptChainGraph

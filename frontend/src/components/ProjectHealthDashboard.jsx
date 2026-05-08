@@ -252,14 +252,14 @@ export default function ProjectHealthDashboard({
           />
         </label>
 
-        {isUploading && <p className="status-message">Building file tree...</p>}
         {error && <p className="error-message">{error}</p>}
       </div>
 
       <div className="project-health-layout">
         <div className="project-tree-panel">
-          {Object.keys(projectTree.children ?? {}).length > 0 ? (
+          {isUploading || Object.keys(projectTree.children ?? {}).length > 0 ? (
             <ProjectCascadeTree
+              isUploading={isUploading}
               rootNode={projectTree}
               expandedPaths={expandedPaths}
               selectedPath={selectedNode?.path}
@@ -279,6 +279,7 @@ export default function ProjectHealthDashboard({
 }
 
 function ProjectCascadeTree({
+  isUploading,
   rootNode,
   expandedPaths,
   selectedPath,
@@ -299,20 +300,26 @@ function ProjectCascadeTree({
         <h2>{rootNode.name}</h2>
       </div>
 
-      <div className="project-cascade-tree">
-        {rootChildren.map((node) => (
-          <div className="project-root-column" key={node.path}>
-            <TreeNode
-              node={node}
-              depth={0}
-              expandedPaths={expandedPaths}
-              selectedPath={selectedPath}
-              onToggleFolder={onToggleFolder}
-              onSelectFile={onSelectFile}
-            />
-          </div>
-        ))}
-      </div>
+      {isUploading ? (
+        <div className="project-tree-loading">
+          Building file tree. This could take a moment...
+        </div>
+      ) : (
+        <div className="project-cascade-tree">
+          {rootChildren.map((node) => (
+            <div className="project-root-column" key={node.path}>
+              <TreeNode
+                node={node}
+                depth={0}
+                expandedPaths={expandedPaths}
+                selectedPath={selectedPath}
+                onToggleFolder={onToggleFolder}
+                onSelectFile={onSelectFile}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

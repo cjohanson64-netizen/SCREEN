@@ -1,6 +1,6 @@
 import re
 from collections import Counter
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 
 IMPORT_RE = re.compile(
@@ -264,6 +264,30 @@ EXPORT_VERB_CATEGORY_MAP = {
     "use": "hook_export",
 }
 
+TEST_SUPPORT_PATH_TOKENS = {
+    "test",
+    "tests",
+    "testing",
+    "__tests__",
+    "spec",
+    "specs",
+    "fixture",
+    "fixtures",
+    "mock",
+    "mocks",
+    "stub",
+    "stubs",
+    "fake",
+    "fakes",
+    "devonly",
+    "testutils",
+    "test-utils",
+}
+
+DATA_ACCESS_CATEGORIES = {"data_access"}
+UI_CATEGORIES = {"ui_rendering"}
+DOMAIN_LOGIC_CATEGORIES = {"domain_logic"}
+
 
 def build_import_export_profile(code: str, filename: str = "") -> Dict[str, Any]:
     imports = extract_imports(code)
@@ -297,6 +321,19 @@ def build_import_profile(imports: List[Dict[str, Any]], filename: str = "") -> D
         if category != "unknown"
     ]
 
+    signal_confidence = build_import_signal_confidence(
+        imports=imports,
+        category_counts=category_counts,
+        filename=filename,
+    )
+
+    signals = infer_import_signals(
+        imports=imports,
+        category_counts=category_counts,
+        filename=filename,
+        signal_confidence=signal_confidence,
+    )
+
     return {
         "total": len(imports),
         "externalCount": path_kinds.get("external_package", 0),
@@ -317,9 +354,9 @@ def build_import_profile(imports: List[Dict[str, Any]], filename: str = "") -> D
         "responsibilityCategoryCount": len(category_names),
         "importedFolders": list(folder_counts.keys())[:40],
         "imports": imports[:80],
-        "signals": infer_import_signals(imports, category_counts, filename),
+        "signals": signals,
+        "signalConfidence": signal_confidence,
     }
-
 
 def build_export_profile(exports: List[Dict[str, Any]]) -> Dict[str, Any]:
     kind_counts = Counter(item["exportKind"] for item in exports)
@@ -389,6 +426,7 @@ def build_import_entry(source: str, body: str, import_kind: str) -> Dict[str, An
     path_kind = classify_import_path(source)
     matched_folders = extract_known_folders(source)
     category = infer_import_category(source, matched_folders)
+    path_tokens = extract_path_tokens(source)
 
     return {
         "source": source,
@@ -396,13 +434,17 @@ def build_import_entry(source: str, body: str, import_kind: str) -> Dict[str, An
         "pathKind": path_kind,
         "category": category,
         "matchedFolders": matched_folders,
+        "pathTokens": path_tokens,
+        "testSupportTokens": [
+            token for token in path_tokens
+            if token in TEST_SUPPORT_PATH_TOKENS
+        ],
         "namedCount": count_named_imports(body),
         "hasDefaultImport": has_default_import(body),
         "hasNamespaceImport": "*" in body,
         "isTypeImport": body.startswith("type "),
         "isDeepRelative": path_kind == "deep_relative",
     }
-
 
 def extract_exports(code: str) -> List[Dict[str, Any]]:
     exports: List[Dict[str, Any]] = []
@@ -477,6 +519,29 @@ def extract_known_folders(source: str) -> List[str]:
         if part in FOLDER_CATEGORY_MAP
     ]
 
+def extract_path_tokens(source: str) -> List[str]:
+    raw_parts = [
+        part
+        for part in source.replace("\\", "/").split("/")
+        if part and part not in {".", "..", "@", "~"}
+    ]
+
+    tokens: List[str] = []
+
+    for part in raw_parts:
+        normalized = normalize_path_segment(part)
+        stem = normalized.rsplit(".", 1)[0]
+
+        tokens.append(normalized)
+
+        if stem != normalized:
+            tokens.append(stem)
+
+        for split_token in re.split(r"[-_.]", stem):
+            if split_token:
+                tokens.append(split_token)
+
+    return dedupe_preserve_order(tokens)
 
 def normalize_path_segment(segment: str) -> str:
     return segment.strip().lower()
@@ -608,6 +673,7 @@ def infer_import_signals(
     imports: List[Dict[str, Any]],
     category_counts: Counter,
     filename: str,
+    signal_confidence: Dict[str, Dict[str, Any]],
 ) -> List[str]:
     signals = []
 
@@ -640,17 +706,162 @@ def infer_import_signals(
     if len(responsibility_categories) >= 4:
         signals.append("import_responsibility_spread")
 
-    if category_counts.get("ui_rendering", 0) > 0 and category_counts.get("data_access", 0) > 0:
+    if confidence_at_least(signal_confidence, "ui_imports_data_access", "medium"):
         signals.append("ui_imports_data_access")
 
-    if category_counts.get("ui_rendering", 0) > 0 and category_counts.get("domain_logic", 0) > 0:
+    if confidence_at_least(signal_confidence, "ui_imports_domain_logic", "medium"):
         signals.append("ui_imports_domain_logic")
 
-    if is_production_file(filename) and category_counts.get("test_support", 0) > 0:
+    # This warning is high-trust only. Medium/low confidence stays as evidence,
+    # but does not become a scary production/test-support finding.
+    if confidence_at_least(signal_confidence, "production_imports_test_support", "high"):
         signals.append("production_imports_test_support")
 
     return signals
 
+def build_import_signal_confidence(
+    imports: List[Dict[str, Any]],
+    category_counts: Counter,
+    filename: str,
+) -> Dict[str, Dict[str, Any]]:
+    confidence: Dict[str, Dict[str, Any]] = {}
+
+    production_file = is_production_file(filename)
+    test_support_imports = [
+        item for item in imports
+        if item.get("testSupportTokens")
+    ]
+
+    if test_support_imports:
+        level = "high" if production_file else "low"
+
+        confidence["production_imports_test_support"] = {
+            "level": level,
+            "reason": (
+                "Production file imports a path with explicit test/mock/fixture/stub tokens."
+                if production_file
+                else "Import path contains test-support tokens, but the current file also appears test-like."
+            ),
+            "evidence": [
+                build_import_evidence(item, "test-support token")
+                for item in test_support_imports[:8]
+            ],
+        }
+
+    ui_imports = [
+        item for item in imports
+        if item.get("category") in UI_CATEGORIES
+    ]
+
+    data_access_imports = [
+        item for item in imports
+        if item.get("category") in DATA_ACCESS_CATEGORIES
+    ]
+
+    domain_logic_imports = [
+        item for item in imports
+        if item.get("category") in DOMAIN_LOGIC_CATEGORIES
+    ]
+
+    if ui_imports and data_access_imports:
+        confidence["ui_imports_data_access"] = {
+            "level": "high" if is_ui_file(filename) else "medium",
+            "reason": (
+                "UI-shaped file imports data-access modules."
+                if is_ui_file(filename)
+                else "This file imports both UI and data-access categories."
+            ),
+            "evidence": [
+                *[
+                    build_import_evidence(item, "ui import")
+                    for item in ui_imports[:4]
+                ],
+                *[
+                    build_import_evidence(item, "data-access import")
+                    for item in data_access_imports[:4]
+                ],
+            ],
+        }
+
+    if ui_imports and domain_logic_imports:
+        confidence["ui_imports_domain_logic"] = {
+            "level": "high" if is_ui_file(filename) else "medium",
+            "reason": (
+                "UI-shaped file imports domain-logic modules."
+                if is_ui_file(filename)
+                else "This file imports both UI and domain-logic categories."
+            ),
+            "evidence": [
+                *[
+                    build_import_evidence(item, "ui import")
+                    for item in ui_imports[:4]
+                ],
+                *[
+                    build_import_evidence(item, "domain-logic import")
+                    for item in domain_logic_imports[:4]
+                ],
+            ],
+        }
+
+    return confidence
+
+
+def build_import_evidence(item: Dict[str, Any], reason: str) -> Dict[str, Any]:
+    return {
+        "source": item.get("source", ""),
+        "category": item.get("category", "unknown"),
+        "pathKind": item.get("pathKind", "unknown"),
+        "matchedFolders": item.get("matchedFolders", []),
+        "testSupportTokens": item.get("testSupportTokens", []),
+        "reason": reason,
+    }
+
+
+def confidence_at_least(
+    signal_confidence: Dict[str, Dict[str, Any]],
+    signal: str,
+    minimum: str,
+) -> bool:
+    order = {
+        "low": 1,
+        "medium": 2,
+        "high": 3,
+    }
+
+    level = signal_confidence.get(signal, {}).get("level")
+
+    return order.get(level, 0) >= order.get(minimum, 0)
+
+
+def is_ui_file(filename: str) -> bool:
+    lower = filename.lower().replace("\\", "/")
+
+    return any(
+        marker in lower
+        for marker in [
+            "/components/",
+            "/component/",
+            "/pages/",
+            "/page/",
+            "/screens/",
+            "/views/",
+            ".jsx",
+            ".tsx",
+        ]
+    )
+
+def dedupe_preserve_order(items: List[str]) -> List[str]:
+    result = []
+    seen = set()
+
+    for item in items:
+        if item in seen:
+            continue
+
+        result.append(item)
+        seen.add(item)
+
+    return result
 
 def infer_export_signals(
     exports: List[Dict[str, Any]],
@@ -709,13 +920,29 @@ def infer_export_signals(
 
 
 def is_production_file(filename: str) -> bool:
-    lower = filename.lower()
+    lower = filename.lower().replace("\\", "/")
 
     return not any(
         marker in lower
-        for marker in ["test", "spec", "__tests__", "fixture", "mock", "stub", "fake"]
+        for marker in [
+            "/test/",
+            "/tests/",
+            "/testing/",
+            "/__tests__/",
+            "/fixture/",
+            "/fixtures/",
+            "/mock/",
+            "/mocks/",
+            "/stub/",
+            "/stubs/",
+            "/fake/",
+            "/fakes/",
+            ".test.",
+            ".spec.",
+            "_test.",
+            "_spec.",
+        ]
     )
-
 
 def dedupe_exports(exports: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     result = []

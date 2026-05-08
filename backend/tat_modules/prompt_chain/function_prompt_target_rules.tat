@@ -1,0 +1,87 @@
+// function_prompt_target_rules.tat
+
+import {
+  prompt_chain,
+  discover_phase,
+  plan_phase,
+  transform_phase,
+  verify_phase,
+} from "./shared_prompt_chain_nodes.tat"
+
+hook_extraction = <{}>
+component_extraction = <{}>
+analyzer_module_extraction = <{}>
+handler_extraction = <{}>
+function_expression_review = <{}>
+
+functionPromptTargetGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    hook_extraction,
+    component_extraction,
+    analyzer_module_extraction,
+    handler_extraction,
+    function_expression_review,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  // -----------------------------
+  // Function-profile prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_hook_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, hook_extraction)
+      -> @graft.branch(hook_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(hook_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(hook_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_component_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, component_extraction)
+      -> @graft.branch(component_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(component_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(component_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_analyzer_module_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, analyzer_module_extraction)
+      -> @graft.branch(analyzer_module_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(analyzer_module_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(analyzer_module_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_handler_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, handler_extraction)
+      -> @graft.branch(handler_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(handler_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(handler_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_function_expression_review)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, function_expression_review)
+      -> @graft.branch(function_expression_review, shouldStartWith, discover_phase)
+      -> @graft.branch(function_expression_review, shouldVerifyWith, verify_phase)
+    },
+  }
+
+export hook_extraction
+export component_extraction
+export analyzer_module_extraction
+export handler_extraction
+export function_expression_review
+
+export functionPromptTargetGraph

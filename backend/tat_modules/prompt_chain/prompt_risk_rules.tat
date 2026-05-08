@@ -1,0 +1,39 @@
+// prompt_risk_rules.tat
+
+import {
+  prompt_chain,
+  test_first_constraint,
+  high_risk_chain,
+  medium_risk_chain,
+} from "./shared_prompt_chain_nodes.tat"
+
+promptRiskGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    test_first_constraint,
+
+    high_risk_chain,
+    medium_risk_chain,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  // -----------------------------
+  // Risk profile
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, complexity_high)) {
+    then: {
+      -> @graft.branch(prompt_chain, requiresConstraint, test_first_constraint)
+      -> @graft.branch(prompt_chain, hasRiskProfile, high_risk_chain)
+    },
+    else: {
+      -> @graft.branch(prompt_chain, hasRiskProfile, medium_risk_chain)
+    },
+  }
+
+export promptRiskGraph

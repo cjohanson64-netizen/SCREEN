@@ -1,0 +1,59 @@
+// prompt_chain_composer.tat
+
+import {
+  prompt_chain,
+  sharedPromptChainGraph,
+} from "./shared_prompt_chain_nodes.tat"
+
+import {
+  promptPhaseGraph,
+} from "./prompt_phase_rules.tat"
+
+import {
+  generalPromptTargetGraph,
+} from "./general_prompt_target_rules.tat"
+
+import {
+  functionPromptTargetGraph,
+} from "./function_prompt_target_rules.tat"
+
+import {
+  constantPromptTargetGraph,
+} from "./constant_prompt_target_rules.tat"
+
+import {
+  importExportPromptTargetGraph,
+} from "./import_export_prompt_target_rules.tat"
+
+import {
+  promptConstraintGraph,
+} from "./prompt_constraint_rules.tat"
+
+import {
+  promptRiskGraph,
+} from "./prompt_risk_rules.tat"
+
+promptChainGraph := @compose {
+  from: [
+    sharedPromptChainGraph,
+    promptPhaseGraph,
+    generalPromptTargetGraph,
+    functionPromptTargetGraph,
+    constantPromptTargetGraph,
+    importExportPromptTargetGraph,
+    promptConstraintGraph,
+    promptRiskGraph,
+  ],
+  merge: {
+    strategy: "merge",
+    root: prompt_chain,
+    namespace: "preserve",
+  },
+}
+
+  <- @inject(python_prompt_chain_state, ".py")
+
+projection := promptChainGraph <> @project.apply(graph, prompt_chain)
+
+export promptChainGraph
+export projection

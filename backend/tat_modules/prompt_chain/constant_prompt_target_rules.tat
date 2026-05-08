@@ -1,0 +1,116 @@
+// constant_prompt_target_rules.tat
+
+import {
+  prompt_chain,
+  discover_phase,
+  plan_phase,
+  transform_phase,
+  verify_phase,
+} from "./shared_prompt_chain_nodes.tat"
+
+boolean_rule_extraction = <{}>
+threshold_config_extraction = <{}>
+state_flag_grouping = <{}>
+decision_rule_extraction = <{}>
+visibility_rule_extraction = <{}>
+view_model_extraction = <{}>
+action_guard_extraction = <{}>
+
+constantPromptTargetGraph := @seed {
+  nodes: [
+    prompt_chain,
+
+    boolean_rule_extraction,
+    threshold_config_extraction,
+    state_flag_grouping,
+    decision_rule_extraction,
+    visibility_rule_extraction,
+    view_model_extraction,
+    action_guard_extraction,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: prompt_chain,
+}
+
+  // -----------------------------
+  // Constant-profile prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_boolean_rule_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, boolean_rule_extraction)
+      -> @graft.branch(boolean_rule_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(boolean_rule_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(boolean_rule_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_threshold_config_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, threshold_config_extraction)
+      -> @graft.branch(threshold_config_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(threshold_config_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(threshold_config_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_state_flag_grouping)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, state_flag_grouping)
+      -> @graft.branch(state_flag_grouping, shouldStartWith, discover_phase)
+      -> @graft.branch(state_flag_grouping, shouldPlanBefore, transform_phase)
+      -> @graft.branch(state_flag_grouping, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_decision_rule_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, decision_rule_extraction)
+      -> @graft.branch(decision_rule_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(decision_rule_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(decision_rule_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_visibility_rule_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, visibility_rule_extraction)
+      -> @graft.branch(visibility_rule_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(visibility_rule_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(visibility_rule_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  // -----------------------------
+  // Constant role / value-shape prompt targets
+  // -----------------------------
+
+  -> @if(@derive.state(prompt_chain, target_view_model_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, view_model_extraction)
+      -> @graft.branch(view_model_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(view_model_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(view_model_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+  -> @if(@derive.state(prompt_chain, target_action_guard_extraction)) {
+    then: {
+      -> @graft.branch(prompt_chain, targets, action_guard_extraction)
+      -> @graft.branch(action_guard_extraction, shouldStartWith, discover_phase)
+      -> @graft.branch(action_guard_extraction, shouldPlanBefore, transform_phase)
+      -> @graft.branch(action_guard_extraction, shouldVerifyWith, verify_phase)
+    },
+  }
+
+export boolean_rule_extraction
+export threshold_config_extraction
+export state_flag_grouping
+export decision_rule_extraction
+export visibility_rule_extraction
+export view_model_extraction
+export action_guard_extraction
+
+export constantPromptTargetGraph

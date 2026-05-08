@@ -1,47 +1,103 @@
-import { useState } from "react";
+import MetricCards from "../components/MetricCards";
+import TatReview from "../components/TatReview";
+import RepetitionPanel from "../components/RepetitionPanel";
+import AiPromptPanel from "../components/AiPromptPanel";
+import ClusterReview from "../components/ClusterReview";
+import FindingReview from "../components/FindingReview";
+import PromptChainViewer from "../components/PromptChainViewer";
 
-export default function ResultsTabs({ tabs = [] }) {
-  const visibleTabs = tabs.filter((tab) => tab && tab.content);
+import { getTabSeverity } from "./formatters";
 
-  const [activeId, setActiveId] = useState("");
-  const [seenTabs, setSeenTabs] = useState([]);
+export function buildResultsTabs({
+  result,
+  code,
+  filename,
+  selectedProjectFile,
+  highlightedLines,
+  onHighlightLines,
+  analysisScopes = ["full"],
+}) {
+  const findings = result?.tatReview?.findings ?? [];
+  const repetition = result?.metrics?.repetition ?? {};
+  const clusters = result?.tatReview?.clusters ?? {};
+  const signals = result?.tatReview?.signals ?? [];
+  const risks = result?.tatReview?.risks ?? [];
+  const resolvedAnalysisScopes =
+    result?.tatReview?.analysisScopes ?? analysisScopes ?? ["full"];
 
-  if (!visibleTabs.length) return null;
-
-  const activeTab =
-    visibleTabs.find((tab) => tab.id === activeId) ?? visibleTabs[0];
-
-  function handleTabClick(id) {
-    setActiveId(id);
-    setSeenTabs((prev) => [...new Set([...prev, id])]);
-  }
-
-  return (
-    <section className="results-tabs">
-      <nav className="tabs-nav">
-        {visibleTabs.map((tab) => {
-          const isActive = activeTab.id === tab.id;
-
-          return (
-            <button
-              key={tab.id}
-              className={`tab-button ${isActive ? "active" : ""}`}
-              onClick={() => handleTabClick(tab.id)}
-            >
-              <span className="tab-label">{tab.label}</span>
-
-              {tab.severity && !seenTabs.includes(tab.id) && (
-                <span
-                  className={`tab-dot ${tab.severity}`}
-                  title={`Has ${tab.severity} severity issues`}
-                />
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="tab-panel">{activeTab.content}</div>
-    </section>
-  );
+  return [
+    {
+      id: "metrics",
+      label: "Metrics",
+      content: (
+        <MetricCards
+          metrics={result.metrics}
+          analysisScopes={resolvedAnalysisScopes}
+        />
+      ),
+    },
+    {
+      id: "findings",
+      label: "Review Findings",
+      severity: getTabSeverity({ findings }),
+      content: <FindingReview findings={findings} />,
+    },
+    {
+      id: "tat-review",
+      label: "Semantic Review",
+      severity: getTabSeverity({ signals, risks }),
+      content: <TatReview review={result.tatReview} code={code} />,
+    },
+    {
+      id: "clusters",
+      label: "Semantic Signal Clusters",
+      severity: getTabSeverity({ clusters }),
+      content: <ClusterReview clusters={clusters} />,
+    },
+    {
+      id: "repeated-code",
+      label: "Repeated Code",
+      severity: getTabSeverity({ repetition }),
+      content: (
+        <RepetitionPanel
+          repetition={repetition}
+          highlightedLines={highlightedLines}
+          onHighlightLines={onHighlightLines}
+        />
+      ),
+    },
+    {
+      id: "ai-prompt",
+      label: "AI Prompt",
+      severity: getTabSeverity({
+        findings,
+        repetition,
+        signals,
+        risks,
+      }),
+      content: (
+        <AiPromptPanel
+          filename={filename}
+          code={code}
+          signals={signals}
+          risks={risks}
+          findings={findings}
+          repetition={repetition}
+          selectedProjectFile={selectedProjectFile}
+          tatReview={result.tatReview}
+          analysisScopes={resolvedAnalysisScopes}
+        />
+      ),
+    },
+    {
+      id: "prompt-chain",
+      label: "AI Prompt Chain",
+      severity: result.promptChainRecommendation ? "medium" : null,
+      content: (
+        <PromptChainViewer
+          recommendation={result.promptChainRecommendation}
+        />
+      ),
+    },
+  ];
 }

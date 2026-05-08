@@ -46,8 +46,9 @@ def analyze_code():
             "error": "No code provided"
         }), 400
 
-    metrics = measure_file(code)
-    tat_review = run_tat_review(metrics)
+    metrics = measure_file(code, filename=filename)
+    analysis_scopes = data.get("analysisScopes") or data.get("analysis_scopes")
+    tat_review = run_tat_review(metrics, analysis_scopes=analysis_scopes)
     prompt_signals = analyze_code_for_prompt_chain(
         filename=filename,
         code=code,

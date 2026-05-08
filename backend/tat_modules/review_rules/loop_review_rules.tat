@@ -1,0 +1,35 @@
+// loop_review_rules.tat
+
+import {
+  file_analysis,
+  complexity_cluster,
+} from "./shared_review_nodes.tat"
+
+loop_heavy = <{}>
+
+loopReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    loop_heavy,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Loop signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, loopCount) > 5) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, loop_heavy)
+      -> @graft.branch(loop_heavy, belongsToCluster, complexity_cluster)
+    },
+  }
+
+export loop_heavy
+
+export loopReviewGraph

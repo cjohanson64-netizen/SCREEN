@@ -1,0 +1,177 @@
+// export_review_rules.tat
+
+import {
+  file_analysis,
+  export_profile_cluster,
+  public_api_cluster,
+} from "./shared_review_nodes.tat"
+
+export_heavy = <{}>
+named_export_heavy = <{}>
+default_export_present = <{}>
+reexport_heavy = <{}>
+star_reexport_present = <{}>
+barrel_file = <{}>
+public_api_pressure = <{}>
+export_responsibility_spread = <{}>
+mixed_export_roles = <{}>
+utility_grab_bag = <{}>
+type_export_heavy = <{}>
+
+finding_export_responsibility_spread = <{}>
+finding_utility_grab_bag = <{}>
+finding_barrel_file = <{}>
+finding_public_api_pressure = <{}>
+
+exportReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    export_heavy,
+    named_export_heavy,
+    default_export_present,
+    reexport_heavy,
+    star_reexport_present,
+    barrel_file,
+    public_api_pressure,
+    export_responsibility_spread,
+    mixed_export_roles,
+    utility_grab_bag,
+    type_export_heavy,
+
+    finding_export_responsibility_spread,
+    finding_utility_grab_bag,
+    finding_barrel_file,
+    finding_public_api_pressure,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Export semantic profile signals
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, exportCount) > 10) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, export_heavy)
+      -> @graft.branch(export_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(export_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, namedExportCount) > 8) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, named_export_heavy)
+      -> @graft.branch(named_export_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(named_export_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, defaultExportCount) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, default_export_present)
+      -> @graft.branch(default_export_present, belongsToCluster, export_profile_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, reexportCount) > 4) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, reexport_heavy)
+      -> @graft.branch(reexport_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(reexport_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, starReexportCount) > 0) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, star_reexport_present)
+      -> @graft.branch(star_reexport_present, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(star_reexport_present, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, starReexportDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, star_reexport_present)
+      -> @graft.branch(star_reexport_present, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(star_reexport_present, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, barrelFileDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, barrel_file)
+      -> @graft.branch(barrel_file, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(barrel_file, belongsToCluster, public_api_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_barrel_file)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, exportCount) > 10) {
+    then: {
+      -> @if(@derive.state(file_analysis, namedExportCount) > 8) {
+        then: {
+          -> @graft.branch(file_analysis, hasSignal, public_api_pressure)
+          -> @graft.branch(public_api_pressure, belongsToCluster, export_profile_cluster)
+          -> @graft.branch(public_api_pressure, belongsToCluster, public_api_cluster)
+          -> @graft.branch(file_analysis, hasFinding, finding_public_api_pressure)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, exportResponsibilityRoleCount) > 3) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, export_responsibility_spread)
+      -> @graft.branch(export_responsibility_spread, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(export_responsibility_spread, belongsToCluster, public_api_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_export_responsibility_spread)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, mixedExportRolesDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, mixed_export_roles)
+      -> @graft.branch(mixed_export_roles, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(mixed_export_roles, belongsToCluster, public_api_cluster)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, utilityGrabBagDetected)) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, utility_grab_bag)
+      -> @graft.branch(utility_grab_bag, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(utility_grab_bag, belongsToCluster, public_api_cluster)
+      -> @graft.branch(file_analysis, hasFinding, finding_utility_grab_bag)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, typeExportCount) > 6) {
+    then: {
+      -> @graft.branch(file_analysis, hasSignal, type_export_heavy)
+      -> @graft.branch(type_export_heavy, belongsToCluster, export_profile_cluster)
+      -> @graft.branch(type_export_heavy, belongsToCluster, public_api_cluster)
+    },
+  }
+
+export export_heavy
+export named_export_heavy
+export default_export_present
+export reexport_heavy
+export star_reexport_present
+export barrel_file
+export public_api_pressure
+export export_responsibility_spread
+export mixed_export_roles
+export utility_grab_bag
+export type_export_heavy
+
+export finding_export_responsibility_spread
+export finding_utility_grab_bag
+export finding_barrel_file
+export finding_public_api_pressure
+
+export exportReviewGraph

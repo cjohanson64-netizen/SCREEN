@@ -1,0 +1,292 @@
+// refactor_worthiness_review_rules.tat
+
+import {
+  file_analysis,
+} from "./shared_review_nodes.tat"
+
+refactor_none = <{}>
+refactor_watch = <{}>
+refactor_recommended = <{}>
+refactor_urgent = <{}>
+
+healthy_orchestration_density = <{}>
+app_root_orchestration_density = <{}>
+page_shell_composition_density = <{}>
+single_domain_rule_complexity = <{}>
+multi_domain_responsibility_mixing = <{}>
+behavior_ownership_drift = <{}>
+very_high_extension_risk = <{}>
+
+no_immediate_refactor = <{}>
+watch_for_growth = <{}>
+targeted_rule_cluster_extraction = <{}>
+domain_specific_extraction = <{}>
+preserve_public_composition_shell = <{}>
+refactor_before_adding_behavior = <{}>
+
+refactorWorthinessReviewGraph := @seed {
+  nodes: [
+    file_analysis,
+
+    refactor_none,
+    refactor_watch,
+    refactor_recommended,
+    refactor_urgent,
+
+    healthy_orchestration_density,
+    app_root_orchestration_density,
+    page_shell_composition_density,
+    single_domain_rule_complexity,
+    multi_domain_responsibility_mixing,
+    behavior_ownership_drift,
+    very_high_extension_risk,
+
+    no_immediate_refactor,
+    watch_for_growth,
+    targeted_rule_cluster_extraction,
+    domain_specific_extraction,
+    preserve_public_composition_shell,
+    refactor_before_adding_behavior,
+  ],
+  edges: [],
+  state: {},
+  meta: {},
+  root: file_analysis,
+}
+
+  // -----------------------------
+  // Healthy orchestration density
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, pathHasAppFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 3) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_watch)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, app_root_orchestration_density)
+          -> @graft.branch(app_root_orchestration_density, hasReason, healthy_orchestration_density)
+          -> @graft.branch(file_analysis, hasRecommendation, watch_for_growth)
+          -> @graft.branch(file_analysis, hasRecommendation, preserve_public_composition_shell)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameIsAppRoot)) {
+    then: {
+      -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 3) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_watch)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, app_root_orchestration_density)
+          -> @graft.branch(app_root_orchestration_density, hasReason, healthy_orchestration_density)
+          -> @graft.branch(file_analysis, hasRecommendation, watch_for_growth)
+          -> @graft.branch(file_analysis, hasRecommendation, preserve_public_composition_shell)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasPageFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 3) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_watch)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, page_shell_composition_density)
+          -> @graft.branch(page_shell_composition_density, hasReason, healthy_orchestration_density)
+          -> @graft.branch(file_analysis, hasRecommendation, watch_for_growth)
+          -> @graft.branch(file_analysis, hasRecommendation, preserve_public_composition_shell)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Page/app ownership drift
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, pathHasAppFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 5) {
+        then: {
+          -> @if(@derive.state(file_analysis, handlerFunctionCount) > 6) {
+            then: {
+              -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_recommended)
+              -> @graft.branch(file_analysis, hasWorthinessSignal, behavior_ownership_drift)
+              -> @graft.branch(file_analysis, hasRecommendation, targeted_rule_cluster_extraction)
+              -> @graft.branch(file_analysis, hasRecommendation, preserve_public_composition_shell)
+            },
+          }
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasPageFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 4) {
+        then: {
+          -> @if(@derive.state(file_analysis, renderDataProjectionConstantCount) > 3) {
+            then: {
+              -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_recommended)
+              -> @graft.branch(file_analysis, hasWorthinessSignal, multi_domain_responsibility_mixing)
+              -> @graft.branch(file_analysis, hasRecommendation, domain_specific_extraction)
+              -> @graft.branch(file_analysis, hasRecommendation, preserve_public_composition_shell)
+            },
+          }
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameEndsWithPage)) {
+    then: {
+      -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 4) {
+        then: {
+          -> @if(@derive.state(file_analysis, handlerFunctionCount) > 4) {
+            then: {
+              -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_recommended)
+              -> @graft.branch(file_analysis, hasWorthinessSignal, multi_domain_responsibility_mixing)
+              -> @graft.branch(file_analysis, hasRecommendation, domain_specific_extraction)
+              -> @graft.branch(file_analysis, hasRecommendation, preserve_public_composition_shell)
+            },
+          }
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Domain-cohesive rule complexity
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, pathHasDomainFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, decisionKeywords) > 10) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_watch)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, single_domain_rule_complexity)
+          -> @graft.branch(file_analysis, hasRecommendation, targeted_rule_cluster_extraction)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasUtilityFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, predicateFunctionCount) > 3) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_watch)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, single_domain_rule_complexity)
+          -> @graft.branch(file_analysis, hasRecommendation, targeted_rule_cluster_extraction)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, fileNameLooksDomain)) {
+    then: {
+      -> @if(@derive.state(file_analysis, booleanDerivedValueConstantCount) > 3) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_watch)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, single_domain_rule_complexity)
+          -> @graft.branch(file_analysis, hasRecommendation, targeted_rule_cluster_extraction)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Cross-domain responsibility mixing
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, importResponsibilityCategoryCount) > 5) {
+    then: {
+      -> @if(@derive.state(file_analysis, localImportCount) > 8) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_recommended)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, multi_domain_responsibility_mixing)
+          -> @graft.branch(file_analysis, hasRecommendation, domain_specific_extraction)
+        },
+      }
+    },
+  }
+
+
+  // -----------------------------
+  // Pass 3: domain cohesion interpretation
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, domainCohesionLikely)) {
+    then: {
+      -> @if(@derive.state(file_analysis, complexityScore) > 35) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_watch)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, single_domain_rule_complexity)
+          -> @graft.branch(file_analysis, hasRecommendation, targeted_rule_cluster_extraction)
+        },
+      }
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, multiDomainMixingLikely)) {
+    then: {
+      -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_recommended)
+      -> @graft.branch(file_analysis, hasWorthinessSignal, multi_domain_responsibility_mixing)
+      -> @graft.branch(file_analysis, hasRecommendation, domain_specific_extraction)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, pathHasPageFolder)) {
+    then: {
+      -> @if(@derive.state(file_analysis, activeResponsibilityDomainCount) > 3) {
+        then: {
+          -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_recommended)
+          -> @graft.branch(file_analysis, hasWorthinessSignal, multi_domain_responsibility_mixing)
+          -> @graft.branch(file_analysis, hasRecommendation, preserve_public_composition_shell)
+          -> @graft.branch(file_analysis, hasRecommendation, domain_specific_extraction)
+        },
+      }
+    },
+  }
+
+  // -----------------------------
+  // Extension risk escalation
+  // -----------------------------
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 70) {
+    then: {
+      -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_recommended)
+      -> @graft.branch(file_analysis, hasWorthinessSignal, very_high_extension_risk)
+      -> @graft.branch(file_analysis, hasRecommendation, refactor_before_adding_behavior)
+    },
+  }
+
+  -> @if(@derive.state(file_analysis, complexityScore) > 140) {
+    then: {
+      -> @graft.branch(file_analysis, hasRefactorUrgency, refactor_urgent)
+      -> @graft.branch(file_analysis, hasWorthinessSignal, very_high_extension_risk)
+      -> @graft.branch(file_analysis, hasRecommendation, refactor_before_adding_behavior)
+    },
+  }
+
+export refactor_none
+export refactor_watch
+export refactor_recommended
+export refactor_urgent
+
+export healthy_orchestration_density
+export app_root_orchestration_density
+export page_shell_composition_density
+export single_domain_rule_complexity
+export multi_domain_responsibility_mixing
+export behavior_ownership_drift
+export very_high_extension_risk
+
+export no_immediate_refactor
+export watch_for_growth
+export targeted_rule_cluster_extraction
+export domain_specific_extraction
+export preserve_public_composition_shell
+export refactor_before_adding_behavior
+
+export refactorWorthinessReviewGraph
